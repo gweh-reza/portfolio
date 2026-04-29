@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhamad Rezha — Video Editor & Creative Graphic Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   CSS VARIABLES & THEME SYSTEM
+   ========================================================= */
+:root {
+  --orange:       #e26f0e;
+  --orange-bright:#ff8c1a;
+  --orange-dim:   #7a3c07;
+  --bg:           #080808;
+  --bg-2:         #0f0f0f;
+  --bg-3:         #161616;
+  --bg-card:      rgba(255,255,255,0.04);
+  --border:       rgba(255,255,255,0.08);
+  --border-hover: rgba(226,111,14,0.5);
+  --text:         #f0f0f0;
+  --text-muted:   #888;
+  --text-dim:     #444;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-serif:   'Cormorant Garamond', serif;
+  --font-body:    'DM Sans', sans-serif;
+  --nav-h:        72px;
+  --transition:   0.3s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="light"] {
+  --bg:     #f4f0eb;
+  --bg-2:   #ede8e1;
+  --bg-3:   #e5dfd7;
+  --bg-card: rgba(0,0,0,0.04);
+  --border: rgba(0,0,0,0.1);
+  --border-hover: rgba(226,111,14,0.6);
+  --text:   #111;
+  --text-muted: #555;
+  --text-dim:  #aaa;
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: none;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+a { color: inherit; text-decoration: none; cursor: none; }
+img { display: block; width: 100%; object-fit: cover; }
+button { cursor: none; border: none; background: none; font-family: inherit; }
+
+/* =========================================================
+   CUSTOM CURSOR
+   ========================================================= */
+#cursor-outer {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--orange);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.12s ease, width 0.25s ease, height 0.25s ease,
+              border-color 0.25s ease, background 0.25s ease;
+  mix-blend-mode: normal;
+}
+#cursor-dot {
+  width: 6px; height: 6px;
+  background: var(--orange);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 100000;
+  transform: translate(-50%, -50%);
+  transition: transform 0.04s ease;
+}
+body.cursor-hover #cursor-outer {
+  width: 60px; height: 60px;
+  background: rgba(226,111,14,0.12);
+  border-color: var(--orange-bright);
+}
+body.cursor-text #cursor-outer {
+  width: 80px; height: 80px;
+  border-radius: 8px;
+  border-color: var(--orange);
+}
+
+/* =========================================================
+   NOISE OVERLAY
+   ========================================================= */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1;
+}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+#navbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5vw;
+  transition: background 0.4s ease, border-bottom 0.4s ease;
+}
+#navbar.scrolled {
+  background: rgba(8,8,8,0.88);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+}
+[data-theme="light"] #navbar.scrolled {
+  background: rgba(244,240,235,0.88);
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  color: var(--text);
+}
+.nav-logo span { color: var(--orange); }
+.nav-links {
+  display: flex; gap: 2.5rem; align-items: center;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--transition);
+  position: relative;
+  padding-bottom: 4px;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: var(--orange);
+  transition: width var(--transition);
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { width: 100%; }
+.nav-actions { display: flex; gap: 1rem; align-items: center; }
+#theme-toggle {
+  width: 44px; height: 24px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  position: relative;
+  transition: background var(--transition);
+}
+#theme-toggle::before {
+  content: '';
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--orange);
+  transition: transform 0.3s ease;
+}
+[data-theme="light"] #theme-toggle::before { transform: translateX(20px); }
+.nav-icon { font-size: 14px; line-height: 1; }
+#hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  padding: 4px;
+}
+#hamburger span {
+  display: block; width: 24px; height: 1.5px;
+  background: var(--text);
+  transition: transform var(--transition), opacity var(--transition);
+}
+/* Mobile nav */
+#mobile-nav {
+  position: fixed; inset: 0;
+  background: rgba(8,8,8,0.97);
+  z-index: 999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2.5rem;
+  transform: translateX(100%);
+  transition: transform 0.5s cubic-bezier(0.77,0,0.18,1);
+}
+#mobile-nav.open { transform: translateX(0); }
+#mobile-nav a {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  transition: color var(--transition);
+}
+#mobile-nav a:hover { color: var(--orange); }
+
+/* =========================================================
+   HERO SECTION
+   ========================================================= */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 5vw calc(8vh + 60px);
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  z-index: 0;
+}
+/* Geometric triangle — mirroring SVG6 polygon */
+.hero-triangle {
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 50vw solid transparent;
+  border-right: 50vw solid transparent;
+  border-bottom: 100vh solid rgba(226,111,14,0.04);
+  bottom: 0; left: 0;
+  pointer-events: none;
+}
+.hero-grid-lines {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+}
+.hero-orb-1 {
+  width: 600px; height: 600px;
+  background: var(--orange);
+  top: -200px; right: -100px;
+}
+.hero-orb-2 {
+  width: 300px; height: 300px;
+  background: #ff4500;
+  bottom: 200px; left: -100px;
+}
+.hero-content { position: relative; z-index: 2; }
+.hero-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.hero-eyebrow::before {
+  content: ''; width: 32px; height: 1px; background: var(--orange);
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 13vw, 14rem);
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.15em;
+  overflow: hidden;
+}
+.hero-title-line {
+  display: block; overflow: hidden;
+}
+.hero-title-word {
+  display: inline-block;
+  transform: translateY(100%);
+  animation: slideUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.hero-title-word:nth-child(1) { animation-delay: 0.3s; }
+.hero-title-word:nth-child(2) { animation-delay: 0.45s; }
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3.5vw, 3rem);
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  margin-bottom: 0.5em;
+  overflow: hidden;
+}
+.hero-name span {
+  display: inline-block;
+  transform: translateY(100%);
+  animation: slideUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.55s forwards;
+}
+.hero-jobs {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2.5rem;
+  font-size: clamp(0.8rem, 1.3vw, 1rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  overflow: hidden;
+}
+.hero-jobs-inner {
+  display: flex; align-items: center; gap: 1rem;
+  transform: translateY(100%);
+  animation: slideUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.65s forwards;
+}
+.job-divider {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--orange);
+  flex-shrink: 0;
+}
+.hero-cta {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 1s forwards;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  padding: 0.85rem 1.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transition: all var(--transition);
+  position: relative; overflow: hidden;
+}
+.btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.1);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+.btn:hover::before { transform: translateX(0); }
+.btn-primary {
+  background: var(--orange);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--orange-bright); }
+.btn-outline {
+  border: 1px solid var(--border-hover);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--orange); }
+.btn-arrow {
+  display: inline-block;
+  transition: transform var(--transition);
+}
+.btn:hover .btn-arrow { transform: translateX(4px); }
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute; bottom: 3rem; left: 5vw;
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0;
+  animation: fadeIn 1s ease 1.3s forwards;
+  z-index: 2;
+}
+.scroll-line {
+  width: 40px; height: 1px; background: var(--text-dim);
+  position: relative; overflow: hidden;
+}
+.scroll-line::after {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: var(--orange);
+  animation: scrollAnim 2s ease 1.5s infinite;
+}
+/* Hero page number */
+.hero-pagenum {
+  position: absolute; bottom: 3rem; right: 5vw;
+  font-family: var(--font-display);
+  font-size: 0.9rem; letter-spacing: 0.1em;
+  color: var(--text-dim);
+  z-index: 2;
+  opacity: 0; animation: fadeIn 1s ease 1.3s forwards;
+}
+.hero-orange-box {
+  position: absolute;
+  bottom: 12vh; right: 5vw;
+  width: 48px; height: 48px;
+  border: 2px solid var(--orange);
+  animation: rotateSlow 12s linear infinite;
+  opacity: 0.4;
+  z-index: 2;
+}
+
+/* =========================================================
+   SECTION COMMON
+   ========================================================= */
+section {
+  position: relative;
+  padding: 10vh 5vw;
+}
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--orange);
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.section-label::before {
+  content: ''; width: 24px; height: 1px; background: var(--orange);
+}
+.section-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  margin-bottom: 1.5rem;
+}
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+
+/* =========================================================
+   ABOUT SECTION
+   ========================================================= */
+#about {
+  background: var(--bg-2);
+}
+.about-triangle {
+  position: absolute; top: 0; left: 0;
+  width: 0; height: 0;
+  border-left: 45vw solid var(--orange);
+  border-right: 0 solid transparent;
+  border-top: 50vh solid transparent;
+  opacity: 0.06;
+  pointer-events: none;
+}
+.about-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6vw;
+  align-items: start;
+  position: relative; z-index: 1;
+}
+.about-text p {
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  line-height: 1.85;
+  color: var(--text-muted);
+  max-width: 540px;
+}
+.about-text p strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.about-right {}
+.about-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.3rem, 2.5vw, 2rem);
+  line-height: 1.5;
+  color: var(--text);
+  border-left: 3px solid var(--orange);
+  padding-left: 1.5rem;
+  margin-bottom: 3rem;
+}
+.milestone-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 2rem 2.5rem;
+  position: relative; overflow: hidden;
+}
+.milestone-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--orange);
+}
+.milestone-number {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 6vw, 6rem);
+  line-height: 1;
+  color: var(--orange);
+  letter-spacing: -0.02em;
+  display: flex; align-items: baseline; gap: 4px;
+  margin-bottom: 0.4rem;
+}
+.milestone-number .plus {
+  font-size: 0.5em;
+  color: var(--orange-bright);
+}
+.milestone-sub {
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.milestone-desc {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-style: italic;
+  font-family: var(--font-serif);
+}
+
+/* =========================================================
+   VIDEO PORTFOLIO — DATA-DRIVEN
+   ========================================================= */
+#portfolio { background: var(--bg); }
+
+.portfolio-header {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; flex-wrap: wrap; gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Platform filter tabs */
+.pf-filters {
+  display: flex; gap: 0.6rem; flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+.pf-filter {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.76rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text-muted);
+  background: transparent;
+  transition: all var(--transition);
+}
+.pf-filter:hover { border-color: var(--border-hover); color: var(--text); }
+.pf-filter.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+.pf-filter svg { flex-shrink: 0; }
+
+/* Video grid */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.video-card {
+  position: relative; border-radius: 2px; overflow: hidden;
+  background: var(--bg-3); border: 1px solid var(--border);
+  aspect-ratio: 16/10; cursor: none;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+.video-card.tiktok-card { aspect-ratio: 9/14; }
+.video-card.featured-card {
+  grid-column: span 2; aspect-ratio: 32/10;
+}
+.video-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-hover);
+  box-shadow: 0 20px 60px rgba(226,111,14,0.12);
+}
+
+/* Thumbnail */
+.video-thumb {
+  position: absolute; inset: 0; overflow: hidden;
+}
+.video-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.video-card:hover .video-thumb img { transform: scale(1.04); }
+.video-thumb-fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Scrim overlay always present */
+.video-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.85) 0%,
+    rgba(0,0,0,0.1) 50%,
+    rgba(0,0,0,0) 100%
+  );
+  transition: background var(--transition);
+}
+.video-card:hover .video-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.92) 0%,
+    rgba(0,0,0,0.35) 60%,
+    rgba(226,111,14,0.06) 100%
+  );
+}
+
+/* Platform badge */
+.platform-badge {
+  position: absolute; top: 1rem; left: 1rem;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 0.28rem 0.7rem;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: 2px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.badge-youtube { background: rgba(255,0,0,0.75); color: #fff; }
+.badge-tiktok  { background: rgba(0,0,0,0.75); color: #fff; border-color: rgba(255,255,255,0.25); }
+
+/* Featured ribbon */
+.featured-ribbon {
+  position: absolute; top: 1rem; right: 1rem;
+  background: var(--orange); color: #fff;
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 0.28rem 0.8rem;
+}
+
+/* Video number */
+.video-number {
+  position: absolute; top: 1rem; right: 1rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.25);
+}
+.video-card.featured-card .video-number { right: auto; left: 1rem; top: auto; bottom: 4.5rem; }
+
+/* Play button */
+.video-play {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.08);
+  transition: all 0.3s ease;
+}
+.video-card:hover .video-play {
+  border-color: var(--orange);
+  background: rgba(226,111,14,0.25);
+  transform: translate(-50%, -50%) scale(1.12);
+}
+.play-triangle {
+  width: 0; height: 0;
+  border-left: 13px solid rgba(255,255,255,0.9);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  margin-left: 3px;
+}
+.video-card:hover .play-triangle { border-left-color: #fff; }
+
+/* Info bar at bottom */
+.video-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 1.2rem 1.2rem 1rem;
+}
+.video-title {
+  font-size: 0.9rem; font-weight: 500; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 0.2rem;
+}
+.video-meta {
+  font-size: 0.7rem; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.45); text-transform: uppercase;
+}
+
+/* Loading skeleton */
+.video-card.skeleton .video-thumb {
+  background: linear-gradient(90deg, var(--bg-3) 25%, var(--bg-2) 50%, var(--bg-3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* =========================================================
+   VIDEO MODAL
+   ========================================================= */
+#video-modal {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.95);
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(16px);
+  animation: modalIn 0.25s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#modal-close {
+  position: absolute; top: 1.5rem; right: 1.5rem;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.06);
+  color: #fff; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: none; transition: border-color var(--transition), background var(--transition);
+}
+#modal-close:hover { border-color: var(--orange); background: rgba(226,111,14,0.15); }
+#modal-platform-badge {
+  position: absolute; top: 1.6rem; left: 50%; transform: translateX(-50%);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+#modal-video-wrap {
+  position: relative;
+  width: min(90vw, 1060px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+#modal-video-wrap.ratio-landscape { aspect-ratio: 16/9; }
+#modal-video-wrap.ratio-portrait  { aspect-ratio: 9/16; max-width: 420px; }
+#modal-info {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  text-align: center; white-space: nowrap;
+}
+#modal-title { font-size: 1rem; font-weight: 500; color: #fff; letter-spacing: 0.04em; }
+#modal-meta  { font-size: 0.72rem; color: rgba(255,255,255,0.4); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+
+/* =========================================================
+   DESIGNING SECTION
+   ========================================================= */
+#designing {
+  background: var(--bg-2);
+}
+.designing-header {
+  max-width: 700px;
+  margin-bottom: 4rem;
+}
+.designing-header p {
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-top: 1rem;
+}
+.design-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 1.5rem;
+}
+/* Featured card spans 2 columns */
+.design-card { position: relative; overflow: hidden; border-radius: 2px; }
+.design-card.featured { grid-column: span 2; aspect-ratio: 16/9; }
+.design-card.portrait { aspect-ratio: 3/4; }
+.design-card.square { aspect-ratio: 1/1; }
+.design-card.wide { grid-column: span 2; aspect-ratio: 21/9; }
+.design-bg {
+  position: absolute; inset: 0;
+  border: 1px solid var(--border);
+  transition: border-color var(--transition);
+}
+.design-card:hover .design-bg { border-color: var(--border-hover); }
+/* Unique gradient per card */
+.grad-1 { background: linear-gradient(145deg, #1a0a00 0%, #4a1e06 40%, #7a3408 100%); }
+.grad-2 { background: linear-gradient(220deg, #060a14 0%, #0d2040 50%, #1a3a6e 100%); }
+.grad-3 { background: linear-gradient(135deg, #0a0a0a 0%, #1e1e1e 50%, #2a1a1a 100%); }
+.grad-4 { background: linear-gradient(160deg, #080a04 0%, #1a2a08 50%, #2e4a10 100%); }
+.grad-5 { background: linear-gradient(190deg, #0a0414 0%, #1e0a30 50%, #380f58 100%); }
+
+/* Card inner pattern */
+.design-pattern {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+/* Geometric accent shapes in cards */
+.design-shape {
+  position: absolute;
+  border: 1px solid rgba(226,111,14,0.3);
+}
+.design-shape-circle {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  right: 20%; bottom: 20%;
+}
+.design-shape-square {
+  width: 80px; height: 80px;
+  top: 20%; left: 20%;
+  transform: rotate(30deg);
+}
+.design-shape-line {
+  width: 1px; height: 100%;
+  left: 40%; top: 0;
+  background: rgba(226,111,14,0.15);
+  border: none;
+}
+
+/* Hover overlay */
+.design-overlay {
+  position: absolute; inset: 0;
+  background: rgba(226,111,14,0.88);
+  display: flex; flex-direction: column;
+  align-items: flex-start; justify-content: flex-end;
+  padding: 1.5rem;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.design-card:hover .design-overlay {
+  opacity: 1; transform: translateY(0);
+}
+.design-overlay-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+.design-overlay-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+}
+/* Card label (visible without hover) */
+.design-label {
+  position: absolute; bottom: 1.2rem; left: 1.2rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  font-weight: 500;
+  transition: opacity var(--transition);
+}
+.design-card:hover .design-label { opacity: 0; }
+/* Orange corner accent */
+.design-corner {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-top: 2px solid var(--orange);
+  border-right: 2px solid var(--orange);
+  top: 1rem; right: 1rem;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.design-card:hover .design-corner { opacity: 1; }
+
+/* =========================================================
+   SKILLS STRIP
+   ========================================================= */
+#skills-strip {
+  background: var(--orange);
+  padding: 1.4rem 0;
+  overflow: hidden;
+}
+.marquee {
+  display: flex; gap: 3rem;
+  animation: marquee 18s linear infinite;
+  white-space: nowrap;
+  width: max-content;
+}
+.marquee-text {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.8);
+  display: flex; align-items: center; gap: 3rem;
+  flex-shrink: 0;
+}
+.marquee-dot {
+  width: 5px; height: 5px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   CONTACT / FOOTER
+   ========================================================= */
+#contact {
+  background: var(--bg);
+  text-align: center;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+.contact-sub {
+  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+  color: var(--text-muted);
+  max-width: 480px;
+  line-height: 1.7;
+}
+.contact-email {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 3.5rem);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  border-bottom: 2px solid var(--orange);
+  padding-bottom: 4px;
+  transition: color var(--transition);
+}
+.contact-email:hover { color: var(--orange); }
+.social-links {
+  display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  margin-top: 1rem;
+}
+.social-link {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.2rem;
+  border-radius: 2px;
+  transition: all var(--transition);
+}
+.social-link:hover {
+  color: var(--text);
+  border-color: var(--orange);
+  background: rgba(226,111,14,0.06);
+}
+.social-icon {
+  width: 16px; height: 16px;
+  opacity: 0.6;
+}
+footer {
+  background: var(--bg-2);
+  border-top: 1px solid var(--border);
+  padding: 2rem 5vw;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-copy {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+.footer-copy span { color: var(--orange); }
+.footer-made {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   KEYFRAME ANIMATIONS
+   ========================================================= */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scrollAnim {
+  from { left: -100%; }
+  to   { left: 100%; }
+}
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 900px) {
+  .about-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .design-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .design-card.featured { grid-column: span 2; }
+  .design-card.wide { grid-column: span 2; }
+  .nav-links { display: none; }
+  #hamburger { display: flex; }
+}
+@media (max-width: 600px) {
+  .video-grid { grid-template-columns: 1fr; }
+  .design-grid { grid-template-columns: 1fr; }
+  .design-card.featured { grid-column: span 1; }
+  .design-card.wide { grid-column: span 1; }
+  .hero-title { font-size: clamp(3.5rem, 16vw, 6rem); }
+  .hero-cta { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+  .portfolio-header { flex-direction: column; align-items: flex-start; }
+  footer { flex-direction: column; text-align: center; }
+  /* Featured card: full width on mobile */
+  .featured-card { grid-column: span 1 !important; aspect-ratio: 16/9 !important; }
+  /* TikTok cards: narrower on mobile */
+  .tiktok-card  { aspect-ratio: 9/16; max-width: 280px; margin: 0 auto; }
+  /* Modal portrait: full height */
+  #modal-video-wrap.ratio-portrait { height: 70vh; }
+}
+
+/* =========================================================
+   PLATFORM FILTER TABS
+   ========================================================= */
+.pf-filters {
+  display: flex; gap: 0.6rem; margin-bottom: 2.5rem; flex-wrap: wrap;
+}
+.pf-filter {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text-muted);
+  background: transparent;
+  transition: all var(--transition);
+}
+.pf-filter:hover { color: var(--text); border-color: var(--border-hover); }
+.pf-filter.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+/* Skeleton shimmer */
+.thumb-skeleton {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, var(--bg-3) 0%, rgba(255,255,255,0.06) 50%, var(--bg-3) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease infinite;
+  transition: opacity 0.4s ease;
+}
+.thumb-skeleton.loaded { opacity: 0; pointer-events: none; }
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+.thumb-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity 0.5s ease;
+}
+.thumb-img.loaded { opacity: 1; }
+
+/* ---- Thumbnail skeleton shimmer (before image loads) ---- */
+.video-thumb.skeleton {
+  background: var(--bg-3);
+  overflow: hidden;
+}
+.video-thumb.skeleton::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease infinite;
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+/* fallback gradient background inside thumb */
+.video-thumb-fallback {
+  position: absolute; inset: 0;
+}
+
+/* Gradient scrim — darkens bottom of thumb for readability */
+.video-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Platform badge on card */
+.platform-badge {
+  position: absolute; top: 0.9rem; left: 0.9rem;
+  display: flex; align-items: center; gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 2px;
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  backdrop-filter: blur(8px); z-index: 3;
+}
+.badge-youtube { background: rgba(200,0,0,0.9); color: #fff; }
+.badge-tiktok  { background: rgba(0,0,0,0.88); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+
+/* Featured ribbon — top-right */
+.featured-ribbon {
+  position: absolute; top: 0.9rem; right: 0.9rem;
+  background: var(--orange); color: #fff;
+  font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700;
+  padding: 0.28rem 0.7rem; border-radius: 2px; z-index: 3;
+}
+
+/* Card number — top-right when not featured */
+.video-number {
+  position: absolute; top: 0.9rem; right: 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.22); z-index: 3;
+}
+
+/* Featured card spans 2 columns */
+.featured-card { grid-column: span 2; aspect-ratio: 32/10 !important; }
+
+/* TikTok cards: portrait ratio */
+.tiktok-card { aspect-ratio: 9/16; }
+
+/* Override video-info z-index to sit above scrim */
+.video-info { z-index: 2; }
+
+.video-card.filtered-out { display: none; }
+
+/* =========================================================
+   VIDEO MODAL — FULL REDESIGN
+   ========================================================= */
+#video-modal {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.96);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 1rem;
+  backdrop-filter: blur(20px);
+  padding: 5rem 1.5rem 2rem;
+}
+#modal-close {
+  position: absolute; top: 1.5rem; right: 1.5rem;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05); color: #fff; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--transition), background var(--transition);
+}
+#modal-close:hover { border-color: var(--orange); background: rgba(226,111,14,0.15); }
+#modal-platform-badge {
+  position: absolute; top: 1.8rem; left: 1.8rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+/* Two ratio modes — switched by JS */
+#modal-video-wrap {
+  position: relative; background: #000; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+#modal-video-wrap.ratio-landscape {
+  width: min(90vw, 1100px);
+  aspect-ratio: 16/9;
+}
+#modal-video-wrap.ratio-portrait {
+  height: min(75vh, 680px);
+  aspect-ratio: 9/16;
+}
+#modal-video-wrap iframe,
+#modal-video-wrap video {
+  width: 100%; height: 100%; border: none; display: block;
+}
+#modal-info { text-align: center; max-width: 600px; padding: 0 1rem; flex-shrink: 0; }
+#modal-title { font-size: 1rem; font-weight: 500; color: #fff; letter-spacing: 0.04em; margin-bottom: 5px; }
+#modal-meta  { font-size: 0.72rem; color: rgba(255,255,255,0.38); letter-spacing: 0.15em; text-transform: uppercase; }
+#modal-open-link {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem;
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--orange); border-bottom: 1px solid rgba(226,111,14,0.3);
+  padding-bottom: 2px; transition: border-color var(--transition);
+}
+#modal-open-link:hover { border-color: var(--orange); }
+
+/* =========================================================
+   GLASSMORPHISM UTILITY
+   ========================================================= */
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+[data-theme="light"] .glass {
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Page transition overlay */
+#page-loader {
+  position: fixed; inset: 0;
+  background: var(--orange);
+  z-index: 99998;
+  transform: scaleY(1);
+  transform-origin: top;
+  animation: loaderOut 0.8s cubic-bezier(0.77,0,0.18,1) 0.2s forwards;
+}
+@keyframes loaderOut {
+  from { transform: scaleY(1); }
+  to   { transform: scaleY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader"></div>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor-outer"></div>
+<div id="cursor-dot"></div>
+
+<!-- =========================================================
+     NAVBAR
+     ========================================================= -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">M<span>.</span>REZHA</a>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#portfolio">Work</a></li>
+    <li><a href="#designing">Design</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button id="theme-toggle" title="Toggle theme" aria-label="Toggle dark/light mode"></button>
+    <button id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div id="mobile-nav">
+  <a href="#hero"      onclick="closeMobileNav()">Home</a>
+  <a href="#about"     onclick="closeMobileNav()">About</a>
+  <a href="#portfolio" onclick="closeMobileNav()">Work</a>
+  <a href="#designing" onclick="closeMobileNav()">Design</a>
+  <a href="#contact"   onclick="closeMobileNav()">Contact</a>
+</div>
+
+<!-- =========================================================
+     HERO SECTION
+     ========================================================= -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-grid-lines"></div>
+    <div class="hero-triangle"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+  </div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">Portfolio 2025</p>
+    <h1 class="hero-title">
+      <span class="hero-title-line">
+        <span class="hero-title-word">PORT</span>
+      </span>
+      <span class="hero-title-line">
+        <span class="hero-title-word" style="color: var(--orange);">FOLIO</span>
+      </span>
+    </h1>
+    <p class="hero-name"><span>Muhamad Rezha</span></p>
+    <div class="hero-jobs">
+      <div class="hero-jobs-inner">
+        <span>Video Editor</span>
+        <span class="job-divider"></span>
+        <span>Creative Graphic Designer</span>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <a href="#portfolio" class="btn btn-primary">
+        View My Work <span class="btn-arrow">→</span>
+      </a>
+      <a href="#contact" class="btn btn-outline glass">
+        Get In Touch
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+  <div class="hero-pagenum">01 / 04</div>
+  <div class="hero-orange-box"></div>
+</section>
+
+<!-- =========================================================
+     SKILLS MARQUEE STRIP
+     ========================================================= -->
+<div id="skills-strip">
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-text">
+      <span>VIDEO EDITING</span><span class="marquee-dot"></span>
+      <span>MOTION GRAPHICS</span><span class="marquee-dot"></span>
+      <span>COLOR GRADING</span><span class="marquee-dot"></span>
+      <span>GRAPHIC DESIGN</span><span class="marquee-dot"></span>
+      <span>VISUAL STORYTELLING</span><span class="marquee-dot"></span>
+      <span>BRANDING</span><span class="marquee-dot"></span>
+      <span>SOCIAL CONTENT</span><span class="marquee-dot"></span>
+      <span>CINEMATIC EDITING</span><span class="marquee-dot"></span>
+    </div>
+    <!-- Duplicate for seamless loop -->
+    <div class="marquee-text" aria-hidden="true">
+      <span>VIDEO EDITING</span><span class="marquee-dot"></span>
+      <span>MOTION GRAPHICS</span><span class="marquee-dot"></span>
+      <span>COLOR GRADING</span><span class="marquee-dot"></span>
+      <span>GRAPHIC DESIGN</span><span class="marquee-dot"></span>
+      <span>VISUAL STORYTELLING</span><span class="marquee-dot"></span>
+      <span>BRANDING</span><span class="marquee-dot"></span>
+      <span>SOCIAL CONTENT</span><span class="marquee-dot"></span>
+      <span>CINEMATIC EDITING</span><span class="marquee-dot"></span>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     ABOUT SECTION
+     ========================================================= -->
+<section id="about">
+  <div class="about-triangle"></div>
+  <div class="about-inner">
+    <!-- Left: Text -->
+    <div class="about-text">
+      <p class="section-label reveal">About Me</p>
+      <h2 class="section-heading reveal reveal-delay-1">
+        I Create<br>
+        <em style="font-family: var(--font-serif); font-style: italic; color: var(--orange);">Visual</em><br>
+        Stories.
+      </h2>
+      <p class="reveal reveal-delay-2" style="margin-bottom: 1.5rem;">
+        I'm a video editor with a passion that goes <strong>beyond arranging clips.</strong>
+        I create visual stories. I build emotion, shape narratives, and deliver
+        content that leaves a lasting impression.
+      </p>
+      <p class="reveal reveal-delay-3" style="margin-bottom: 1.5rem;">
+        With a <strong>cinematic touch</strong> and an eye for detail —
+        it doesn't just impress. <strong>It leaves a mark.</strong>
+      </p>
+      <div class="reveal reveal-delay-4" style="margin-top: 2rem;">
+        <a href="#portfolio" class="btn btn-outline" style="display: inline-flex;">
+          See My Portfolio <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: Quote + Milestone -->
+    <div class="about-right">
+      <blockquote class="about-quote reveal reveal-delay-2">
+        "Storytelling, when done right, doesn't just get noticed — it spreads."
+      </blockquote>
+      <div class="milestone-card glass reveal reveal-delay-3">
+        <div class="milestone-number">
+          <span id="counter">0</span>
+          <span>M<span class="plus">+</span></span>
+        </div>
+        <p class="milestone-sub">Views in 30 Days</p>
+        <p class="milestone-desc">
+          My biggest milestone. Reaching 1.6 million on a single month
+          proved that the right story finds its audience.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     VIDEO PORTFOLIO SECTION  (data-driven — edit JS below)
+     ========================================================= -->
+
+<section id="portfolio">
+  <div class="portfolio-header">
+    <div>
+      <p class="section-label reveal">Selected Work</p>
+      <h2 class="section-heading reveal reveal-delay-1">Video<br>Portfolio</h2>
+    </div>
+    <p class="reveal reveal-delay-2" style="max-width:340px; color:var(--text-muted); font-size:0.95rem; line-height:1.7;">
+      Each project is crafted with intention — from the first cut to the final frame.
+    </p>
+  </div>
+
+  <!-- Platform filter tabs -->
+  <div class="pf-filters reveal reveal-delay-3">
+    <button class="pf-filter active" data-filter="all">All</button>
+    <button class="pf-filter" data-filter="youtube">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff"/></svg>
+      YouTube
+    </button>
+    <button class="pf-filter" data-filter="tiktok">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
+      TikTok
+    </button>
+  </div>
+
+  <!-- Cards rendered by JS -->
+  <div id="video-grid" class="video-grid"></div>
+
+  <!-- Empty state -->
+  <div id="pf-empty" style="display:none; text-align:center; padding:4rem 0; color:var(--text-dim);">
+    <p style="font-size:2rem; margin-bottom:0.8rem; opacity:0.3;">&#9654;</p>
+    <p style="font-size:0.9rem; letter-spacing:0.1em;">No projects in this category yet.</p>
+  </div>
+</section>
+
+<!-- =========================================================
+     VIDEO MODAL PLAYER
+     ========================================================= -->
+<div id="video-modal">
+  <button id="modal-close">&#10005;</button>
+  <div id="modal-platform-badge"></div>
+  <div id="modal-video-wrap"></div>
+  <div id="modal-info">
+    <p id="modal-title"></p>
+    <p id="modal-meta"></p>
+  </div>
+</div>
+
+<!-- =========================================================
+     DESIGNING SECTION
+     ========================================================= -->
+<section id="designing">
+  <div class="designing-header">
+    <p class="section-label reveal">Second Language</p>
+    <h2 class="section-heading reveal reveal-delay-1">designing</h2>
+    <p class="reveal reveal-delay-2">
+      I'm not just a video editor — I also design. Video editing is my core
+      but designing is my second language. Here's a look at some of my recent creative work.
+    </p>
+  </div>
+
+  <div class="design-grid">
+    <!-- Featured card -->
+    <div class="design-card featured reveal reveal-delay-1">
+      <div class="design-bg grad-1">
+        <div class="design-pattern"></div>
+        <div class="design-shape design-shape-circle"></div>
+        <div class="design-shape design-shape-line"></div>
+        <span class="design-label">Brand Identity</span>
+        <div class="design-corner"></div>
+      </div>
+      <div class="design-overlay">
+        <p class="design-overlay-title">Brand Identity System</p>
+        <p class="design-overlay-tag">Branding · Typography · Visual Identity</p>
+      </div>
+    </div>
+    <!-- Portrait card -->
+    <div class="design-card portrait reveal reveal-delay-2">
+      <div class="design-bg grad-2">
+        <div class="design-pattern"></div>
+        <div class="design-shape design-shape-square"></div>
+        <span class="design-label">Poster Design</span>
+        <div class="design-corner"></div>
+      </div>
+      <div class="design-overlay">
+        <p class="design-overlay-title">Cinematic Poster</p>
+        <p class="design-overlay-tag">Poster · Layout · Composition</p>
+      </div>
+    </div>
+    <!-- Square card -->
+    <div class="design-card square reveal reveal-delay-3">
+      <div class="design-bg grad-3">
+        <div class="design-pattern"></div>
+        <div class="design-shape" style="width:60px;height:60px;top:30%;right:30%;transform:rotate(45deg);"></div>
+        <span class="design-label">Social Media</span>
+        <div class="design-corner"></div>
+      </div>
+      <div class="design-overlay">
+        <p class="design-overlay-title">Social Media Kit</p>
+        <p class="design-overlay-tag">Digital · Social · Content</p>
+      </div>
+    </div>
+    <!-- Square card -->
+    <div class="design-card square reveal reveal-delay-4">
+      <div class="design-bg grad-5">
+        <div class="design-pattern"></div>
+        <div class="design-shape design-shape-circle" style="width:80px;height:80px;left:20%;top:30%;right:auto;bottom:auto;"></div>
+        <span class="design-label">Typography</span>
+        <div class="design-corner"></div>
+      </div>
+      <div class="design-overlay">
+        <p class="design-overlay-title">Typographic Layout</p>
+        <p class="design-overlay-tag">Typography · Editorial · Print</p>
+      </div>
+    </div>
+    <!-- Wide card -->
+    <div class="design-card wide reveal reveal-delay-3">
+      <div class="design-bg grad-4">
+        <div class="design-pattern"></div>
+        <div class="design-shape" style="width:100%;height:1px;top:50%;left:0;background:rgba(226,111,14,0.12);border:none;"></div>
+        <div class="design-shape design-shape-circle" style="right:10%;bottom:10%;width:90px;height:90px;"></div>
+        <span class="design-label">Product Packaging</span>
+        <div class="design-corner"></div>
+      </div>
+      <div class="design-overlay">
+        <p class="design-overlay-title">Product Packaging Design</p>
+        <p class="design-overlay-tag">Packaging · 3D Mockup · Print</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     CONTACT SECTION
+     ========================================================= -->
+<section id="contact">
+  <p class="section-label reveal" style="justify-content: center;">Get In Touch</p>
+  <h2 class="section-heading reveal reveal-delay-1" style="font-size: clamp(2rem, 5vw, 5rem);">
+    Let's Work<br>
+    <span style="color: var(--orange);">Together.</span>
+  </h2>
+  <p class="contact-sub reveal reveal-delay-2">
+    Have a project in mind? Let's create something memorable — content that
+    doesn't just impress, it leaves a mark.
+  </p>
+  <a href="mailto:muhamadrezhaprasetyahadi@gmail.com" class="contact-email reveal reveal-delay-3">
+    hello@muhamadrezha.com
+  </a>
+  <div class="social-links reveal reveal-delay-4">
+    <a href="https://www.instagram.com/mooresez.y?utm_source=qr&igsh=eG9uMjlnN3V5dXNs" class="social-link">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+      Instagram
+    </a>
+    <a href="https://www.linkedin.com/in/reza-prasetya-540b922a8?utm_source=share_via&utm_content=profile&utm_medium=member_android" class="social-link">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/>
+        <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+      </svg>
+      LinkedIn
+    </a>
+    <a href="#" class="social-link">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.4 5.6 4 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+      </svg>
+      Twitter / X
+    </a>
+    <a href="#" class="social-link">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/>
+        <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/>
+      </svg>
+      YouTube
+    </a>
+    <a href="#" class="social-link">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4l3 3"/>
+      </svg>
+      Behance
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-copy">© 2026 <span>Muhamad Rezha</span>. All rights reserved.</p>
+  <p class="footer-made">Video Editor <span style="color:var(--orange);">×</span> Creative Designer</p>
+</footer>
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+<script>
+/* ---- Custom Cursor ---- */
+const cursorOuter = document.getElementById('cursor-outer');
+const cursorDot   = document.getElementById('cursor-dot');
+let mouseX = 0, mouseY = 0;
+let outerX = 0, outerY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorDot.style.left = mouseX + 'px';
+  cursorDot.style.top  = mouseY + 'px';
+});
+
+/* Smooth outer cursor follow */
+function animateCursor() {
+  outerX += (mouseX - outerX) * 0.12;
+  outerY += (mouseY - outerY) * 0.12;
+  cursorOuter.style.left = outerX + 'px';
+  cursorOuter.style.top  = outerY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+/* Cursor hover states */
+document.querySelectorAll('a, button, .video-card, .design-card').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+document.querySelectorAll('p, h1, h2, h3').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-text'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-text'));
+});
+
+/* ---- Navbar scroll effect ---- */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+/* ---- Theme Toggle ---- */
+const themeToggle = document.getElementById('theme-toggle');
+const html = document.documentElement;
+themeToggle.addEventListener('click', () => {
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+});
+
+/* ---- Hamburger / Mobile Nav ---- */
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobile-nav');
+let mobileOpen = false;
+
+hamburger.addEventListener('click', () => {
+  mobileOpen = !mobileOpen;
+  mobileNav.classList.toggle('open', mobileOpen);
+  document.body.style.overflow = mobileOpen ? 'hidden' : '';
+  const spans = hamburger.querySelectorAll('span');
+  if (mobileOpen) {
+    spans[0].style.transform = 'translateY(6.5px) rotate(45deg)';
+    spans[1].style.opacity   = '0';
+    spans[2].style.transform = 'translateY(-6.5px) rotate(-45deg)';
+  } else {
+    spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  }
+});
+
+function closeMobileNav() {
+  mobileOpen = false;
+  mobileNav.classList.remove('open');
+  document.body.style.overflow = '';
+  hamburger.querySelectorAll('span').forEach(s => {
+    s.style.transform = ''; s.style.opacity = '';
+  });
+}
+
+/* ---- Scroll Reveal with IntersectionObserver ---- */
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+reveals.forEach(el => revealObserver.observe(el));
+
+/* ---- Counter Animation ---- */
+function animateCounter(el, from, to, duration) {
+  const start = performance.now();
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    /* Ease out cubic */
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = from + (to - from) * eased;
+    el.textContent = value.toFixed(1);
+    if (progress < 1) requestAnimationFrame(update);
+    else el.textContent = to.toFixed(1);
+  }
+  requestAnimationFrame(update);
+}
+
+const counterEl = document.getElementById('counter');
+let counterStarted = false;
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !counterStarted) {
+      counterStarted = true;
+      animateCounter(counterEl, 0, 1.6, 2200);
+    }
+  });
+}, { threshold: 0.5 });
+if (counterEl) counterObserver.observe(counterEl.closest('.milestone-card'));
+
+/* ================================================================
+   VIDEO PORTFOLIO — DATA-DRIVEN ENGINE
+   ================================================================
+
+   ✏️  CARA MENAMBAHKAN VIDEO KAMU:
+   ─────────────────────────────────
+   Cukup edit array MY_VIDEOS di bawah ini.
+   Setiap video adalah sebuah objek dengan format:
+
+   {
+     url:      "URL YouTube atau TikTok kamu",
+     title:    "Judul Project",
+     category: "Kategori · Durasi",   ← teks bebas
+     featured: true,                  ← opsional, membuat card LEBAR
+   }
+
+   FORMAT URL YANG DIDUKUNG:
+   ─────────────────────────
+   YouTube:
+     https://www.youtube.com/watch?v=XXXXXXXXXXX
+     https://youtu.be/XXXXXXXXXXX
+     https://www.youtube.com/shorts/XXXXXXXXXXX
+
+   TikTok:
+     https://www.tiktok.com/@username/video/1234567890123456789
+     https://vm.tiktok.com/XXXXXXX/  (short link)
+
+   THUMBNAIL:
+     YouTube  → otomatis diambil dari YouTube (tidak perlu upload)
+     TikTok   → otomatis diambil via TikTok oEmbed API
+
+================================================================ */
+
+const MY_VIDEOS = [
+  /* ── YOUTUBE ─────────────────────────────────────────────────── */
+  {
+    /*01*/
+    url:      "#", // ← ganti dengan URL YouTube kamu
+    title:    "Brand Campaign — Product Launch",
+    category: "Commercial · ",
+    featured: false,
+  },
+  {
+    /*02*/
+    url:      "#", // ← ganti
+    title:    "Short Film — Cinematic Cut",
+    category: "Narrative ·",
+    featured: false,
+  },
+  {
+    /*03*/
+    url:      "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
+    title:    "1.6M Views — Viral Social Campaign",
+    category: "Social Media · Biggest Milestone",
+    featured: true,
+  },
+  {
+    /*04*/
+    url:      "#", // ← ganti
+    title:    "Event Highlight Reel",
+    category: "Event · ",
+    featured: false,
+  },
+
+  /* ── TIKTOK ───────────────────────────────────────────────────── */
+  {
+    /*05*/
+    url:      "https://www.tiktok.com/@rezxec/video/7389276493534203141?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti
+    title:    "Reel — F1 Content",
+    category: "TikTok · Short Form",
+    featured: false,
+  },
+  {
+    /*06*/ 
+    url:      "#", // ← ganti
+    title:    "Motion Reel — Transition Edit",
+    category: "TikTok · Cinematic",
+    featured: false,
+  },
+
+  /* ── TAMBAH LEBIH BANYAK VIDEO DI SINI ───────────────────────────
+  {
+    url:      "https://www.youtube.com/watch?v=VIDEO_ID_KAMU",
+    title:    "Nama Project",
+    category: "Kategori · Durasi",
+    featured: false,
+  },
+  ─────────────────────────────────────────────────────────────── */
+];
+
+/* ----------------------------------------------------------------
+   PLATFORM DETECTION & ID EXTRACTION
+   ---------------------------------------------------------------- */
+function detectPlatform(url) {
+  if (/tiktok\.com/i.test(url))              return 'tiktok';
+  if (/youtube\.com|youtu\.be/i.test(url))   return 'youtube';
+  return 'unknown';
+}
+
+function extractYouTubeId(url) {
+  const patterns = [
+    /[?&]v=([A-Za-z0-9_-]{11})/,
+    /youtu\.be\/([A-Za-z0-9_-]{11})/,
+    /\/shorts\/([A-Za-z0-9_-]{11})/,
+    /\/embed\/([A-Za-z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function extractTikTokId(url) {
+  const m = url.match(/video\/(\d+)/);
+  return m ? m[1] : null;
+}
+
+function getYouTubeThumbnail(id, quality = 'maxresdefault') {
+  return `https://img.youtube.com/vi/${id}/${quality}.jpg`;
+}
+
+/* ----------------------------------------------------------------
+   TIKTOK OEMBED THUMBNAIL — async
+   ---------------------------------------------------------------- */
+async function fetchTikTokThumb(videoUrl) {
+  try {
+    const api = `https://www.tiktok.com/oembed?url=${encodeURIComponent(videoUrl)}`;
+    const res = await fetch(api);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.thumbnail_url || null;
+  } catch {
+    return null;
+  }
+}
+
+/* ----------------------------------------------------------------
+   CARD BUILDER
+   ---------------------------------------------------------------- */
+const FALLBACK_GRADS = [
+  'linear-gradient(135deg,#1a0a00,#7a3408)',
+  'linear-gradient(135deg,#060a14,#1a3a6e)',
+  'linear-gradient(135deg,#0a0414,#380f58)',
+  'linear-gradient(135deg,#0a0a00,#2e4a10)',
+  'linear-gradient(135deg,#100a00,#503010)',
+  'linear-gradient(135deg,#080810,#1a1a40)',
+];
+
+const YT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff">
+  <path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8z"/>
+  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff"/></svg>`;
+const TT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff">
+  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>`;
+
+function createVideoCard(video, index) {
+  const platform = detectPlatform(video.url);
+  const card     = document.createElement('div');
+  const isTikTok = platform === 'tiktok';
+  const grad     = FALLBACK_GRADS[index % FALLBACK_GRADS.length];
+
+  card.className = [
+    'video-card',
+    'reveal',
+    isTikTok        ? 'tiktok-card'  : '',
+    video.featured  ? 'featured-card': '',
+  ].filter(Boolean).join(' ');
+
+  card.style.transitionDelay = `${(index % 3) * 0.1}s`;
+  card.dataset.platform = platform;
+
+  const badgeSvg  = isTikTok ? TT_SVG : YT_SVG;
+  const badgeCls  = isTikTok ? 'badge-tiktok' : 'badge-youtube';
+  const badgeName = isTikTok ? 'TikTok' : 'YouTube';
+  const topRight  = video.featured
+    ? `<span class="featured-ribbon">Featured</span>`
+    : `<span class="video-number">${String(index + 1).padStart(2, '0')}</span>`;
+
+  card.innerHTML = `
+    <div class="video-thumb skeleton">
+      <div class="video-thumb-fallback" style="
+        position:absolute;inset:0;
+        background:${grad};
+        background-image:
+          linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+          linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+        background-size:30px 30px;
+      "></div>
+    </div>
+    <div class="video-scrim"></div>
+    <span class="platform-badge ${badgeCls}">${badgeSvg}&nbsp;${badgeName}</span>
+    ${topRight}
+    <div class="video-play"><div class="play-triangle"></div></div>
+    <div class="video-info">
+      <p class="video-title">${video.title}</p>
+      <p class="video-meta">${video.category}</p>
+    </div>`;
+
+  /* --- Async thumbnail loader --- */
+  async function loadThumbnail() {
+    const thumb = card.querySelector('.video-thumb');
+
+    function applyImage(src, alt) {
+      const img       = new Image();
+      img.alt         = alt;
+      img.style.cssText = `
+        position:absolute;inset:0;
+        width:100%;height:100%;
+        object-fit:cover;display:block;
+        transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);`;
+      img.onload = () => {
+        thumb.appendChild(img);
+        thumb.classList.remove('skeleton');
+      };
+      img.src = src;
+    }
+
+    if (platform === 'youtube') {
+      const id = extractYouTubeId(video.url);
+      if (!id) return;
+      /* Try maxresdefault → hqdefault fallback */
+      const img = new Image();
+      img.onload = () => {
+        thumb.appendChild(img);
+        thumb.classList.remove('skeleton');
+      };
+      img.onerror = () => {
+        img.src = getYouTubeThumbnail(id, 'hqdefault');
+      };
+      img.alt         = video.title;
+      img.style.cssText = `position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);`;
+      img.src = getYouTubeThumbnail(id, 'maxresdefault');
+
+    } else if (platform === 'tiktok') {
+      const thumbUrl = await fetchTikTokThumb(video.url);
+      if (thumbUrl) applyImage(thumbUrl, video.title);
+    }
+  }
+
+  /* Hover zoom on thumbnail image */
+  card.addEventListener('mouseenter', () => {
+    const img = card.querySelector('.video-thumb img');
+    if (img) img.style.transform = 'scale(1.06)';
+  });
+  card.addEventListener('mouseleave', () => {
+    const img = card.querySelector('.video-thumb img');
+    if (img) img.style.transform = 'scale(1)';
+  });
+
+  card._loadThumb = loadThumbnail;
+  return card;
+}
+
+/* ----------------------------------------------------------------
+   RENDER ALL CARDS TO GRID
+   ---------------------------------------------------------------- */
+const videoGrid = document.getElementById('video-grid');
+const pfEmpty   = document.getElementById('pf-empty');
+
+function renderCards(filter) {
+  videoGrid.innerHTML = '';
+
+  const list = filter === 'all'
+    ? MY_VIDEOS
+    : MY_VIDEOS.filter(v => detectPlatform(v.url) === filter);
+
+  pfEmpty.style.display = list.length === 0 ? 'block' : 'none';
+
+  list.forEach((video, i) => {
+    const card = createVideoCard(video, i);
+    videoGrid.appendChild(card);
+    revealObserver.observe(card);
+
+    /* Cursor */
+    card.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    card.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+
+    /* Open modal on click */
+    card.addEventListener('click', () => openVideoModal(video));
+
+    /* Load thumbnail */
+    card._loadThumb();
+  });
+}
+
+/* Initial render */
+renderCards('all');
+
+/* Platform filter buttons */
+document.querySelectorAll('.pf-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pf-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCards(btn.dataset.filter);
+  });
+});
+
+/* ================================================================
+   VIDEO MODAL
+================================================================ */
+const modal      = document.getElementById('video-modal');
+const modalClose = document.getElementById('modal-close');
+const modalWrap  = document.getElementById('modal-video-wrap');
+const modalTitle = document.getElementById('modal-title');
+const modalMeta  = document.getElementById('modal-meta');
+const modalBadge = document.getElementById('modal-platform-badge');
+
+function openVideoModal(video) {
+  const platform = detectPlatform(video.url);
+  const isTikTok = platform === 'tiktok';
+
+  /* Clear previous content */
+  modalWrap.innerHTML = '';
+
+  /* Set ratio class: portrait for TikTok, landscape for YouTube */
+  modalWrap.className = isTikTok ? 'ratio-portrait' : 'ratio-landscape';
+
+  /* Platform badge label */
+  const badgeSvg  = isTikTok ? TT_SVG : YT_SVG;
+  modalBadge.innerHTML = `${badgeSvg}&nbsp; ${isTikTok ? 'TikTok' : 'YouTube'}`;
+
+  modalTitle.textContent = video.title    || '';
+  modalMeta.textContent  = video.category || '';
+
+  /* "Open original" link */
+  let openLink = document.getElementById('modal-open-link');
+  if (!openLink) {
+    openLink = document.createElement('a');
+    openLink.id     = 'modal-open-link';
+    openLink.target = '_blank';
+    openLink.rel    = 'noopener noreferrer';
+    openLink.innerHTML = `Open on ${isTikTok ? 'TikTok' : 'YouTube'} ↗`;
+    document.getElementById('modal-info').appendChild(openLink);
+  } else {
+    openLink.innerHTML = `Open on ${isTikTok ? 'TikTok' : 'YouTube'} ↗`;
+  }
+  openLink.href = video.url;
+
+  /* Build player iframe */
+  if (platform === 'youtube') {
+    const id = extractYouTubeId(video.url);
+    if (!id) { showModalError('Tidak dapat membaca YouTube ID dari URL ini.'); return; }
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+    modalWrap.appendChild(iframe);
+
+  } else if (platform === 'tiktok') {
+    const id = extractTikTokId(video.url);
+    if (!id) { showModalError('Tidak dapat membaca TikTok video ID dari URL ini.'); return; }
+    const iframe = document.createElement('iframe');
+    /* TikTok embed v2 */
+    iframe.src = `https://www.tiktok.com/embed/v2/${id}`;
+    iframe.allow = 'autoplay; fullscreen';
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+    modalWrap.appendChild(iframe);
+
+  } else {
+    showModalError('Platform tidak dikenali. Gunakan link YouTube atau TikTok.');
+    return;
+  }
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function showModalError(msg) {
+  modalWrap.innerHTML = `
+    <div style="
+      width:100%;height:100%;min-height:240px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:#0d0d0d;border:2px dashed rgba(226,111,14,0.3);">
+      <div style="font-size:2.5rem;margin-bottom:1rem;opacity:0.3;">&#9654;</div>
+      <p style="color:rgba(255,255,255,0.45);font-size:0.88rem;text-align:center;
+                max-width:320px;line-height:1.7;">${msg}</p>
+    </div>`;
+}
+
+function closeModal() {
+  modal.style.display = 'none';
+  modalWrap.innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ---- Smooth Scroll for nav links ---- */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    const offset = target.getBoundingClientRect().top + window.scrollY - 72;
+    window.scrollTo({ top: offset, behavior: 'smooth' });
+  });
+});
+
+/* ---- Subtle parallax on hero orbs ---- */
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const orb1 = document.querySelector('.hero-orb-1');
+  const orb2 = document.querySelector('.hero-orb-2');
+  if (orb1) orb1.style.transform = `translateY(${scrollY * 0.15}px)`;
+  if (orb2) orb2.style.transform = `translateY(${scrollY * -0.1}px)`;
+}, { passive: true });
+</script>
+</body>
+</html>
