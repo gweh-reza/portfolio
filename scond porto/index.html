@@ -748,16 +748,16 @@ section {
 }
 .design-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: auto auto;
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
+  align-items: start;
 }
-/* Featured card spans 2 columns */
-.design-card { position: relative; overflow: hidden; border-radius: 2px; }
-.design-card.featured { grid-column: span 2; aspect-ratio: 16/9; }
-.design-card.portrait { aspect-ratio: 3/4; }
-.design-card.square { aspect-ratio: 1/1; }
-.design-card.wide { grid-column: span 2; aspect-ratio: 21/9; }
+/* Design card base — aspect-ratio set dynamically by JS from the image */
+.design-card { position: relative; overflow: hidden; border-radius: 2px; min-height: 80px; }
+.design-card.featured { grid-column: span 3; }
+.design-card.portrait { grid-column: span 1; }
+.design-card.square   { grid-column: span 1; }
+.design-card.wide     { grid-column: span 2; }
 .design-bg {
   position: absolute; inset: 0;
   border: 1px solid var(--border);
@@ -811,6 +811,7 @@ section {
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 3;
 }
 .design-card:hover .design-overlay {
   opacity: 1; transform: translateY(0);
@@ -835,9 +836,11 @@ section {
   font-size: 0.72rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.55);
   font-weight: 500;
   transition: opacity var(--transition);
+  z-index: 2;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
 .design-card:hover .design-label { opacity: 0; }
 /* Orange corner accent */
@@ -849,6 +852,7 @@ section {
   top: 1rem; right: 1rem;
   opacity: 0;
   transition: opacity var(--transition);
+  z-index: 2;
 }
 .design-card:hover .design-corner { opacity: 1; }
 
@@ -994,21 +998,27 @@ footer {
   /* Video grid: 2 columns on tablet */
   .video-grid { grid-template-columns: 1fr 1fr; }
   .video-card.featured-card { grid-column: span 2; aspect-ratio: 21/9; }
-  .design-grid { grid-template-columns: 1fr 1fr; }
+  /* Design grid: 2 columns on tablet */
+  .design-grid { grid-template-columns: repeat(2, 1fr); }
   .design-card.featured { grid-column: span 2; }
-  .design-card.wide { grid-column: span 2; }
+  .design-card.wide     { grid-column: span 2; }
+  .design-card.portrait { grid-column: span 1; }
+  .design-card.square   { grid-column: span 1; }
   .nav-links { display: none; }
   #hamburger { display: flex; }
 }
 @media (max-width: 600px) {
-  /* Video grid: single column on mobile — every card full width */
+  /* Video grid: single column on mobile */
   .video-grid { grid-template-columns: 1fr !important; }
   .video-card { grid-column: span 1 !important; }
   .video-card.featured-card { aspect-ratio: 16/9 !important; }
   .video-card.tiktok-card   { aspect-ratio: 16/9 !important; }
-  .design-grid { grid-template-columns: 1fr; }
-  .design-card.featured { grid-column: span 1; }
-  .design-card.wide { grid-column: span 1; }
+  /* Design grid: single column on mobile */
+  .design-grid { grid-template-columns: 1fr !important; }
+  .design-card.featured,
+  .design-card.wide,
+  .design-card.portrait,
+  .design-card.square { grid-column: span 1 !important; }
   .hero-title { font-size: clamp(3.5rem, 16vw, 6rem); }
   .hero-cta { flex-direction: column; }
   .btn { width: 100%; justify-content: center; }
@@ -1444,74 +1454,13 @@ footer {
     </p>
   </div>
 
-  <div class="design-grid">
-    <!-- Featured card -->
-    <div class="design-card featured reveal reveal-delay-1">
-      <div class="design-bg grad-1">
-        <div class="design-pattern"></div>
-        <div class="design-shape design-shape-circle"></div>
-        <div class="design-shape design-shape-line"></div>
-        <span class="design-label">Brand Identity</span>
-        <div class="design-corner"></div>
-      </div>
-      <div class="design-overlay">
-        <p class="design-overlay-title">Brand Identity System</p>
-        <p class="design-overlay-tag">Branding · Typography · Visual Identity</p>
-      </div>
-    </div>
-    <!-- Portrait card -->
-    <div class="design-card portrait reveal reveal-delay-2">
-      <div class="design-bg grad-2">
-        <div class="design-pattern"></div>
-        <div class="design-shape design-shape-square"></div>
-        <span class="design-label">Poster Design</span>
-        <div class="design-corner"></div>
-      </div>
-      <div class="design-overlay">
-        <p class="design-overlay-title">Cinematic Poster</p>
-        <p class="design-overlay-tag">Poster · Layout · Composition</p>
-      </div>
-    </div>
-    <!-- Square card -->
-    <div class="design-card square reveal reveal-delay-3">
-      <div class="design-bg grad-3">
-        <div class="design-pattern"></div>
-        <div class="design-shape" style="width:60px;height:60px;top:30%;right:30%;transform:rotate(45deg);"></div>
-        <span class="design-label">Social Media</span>
-        <div class="design-corner"></div>
-      </div>
-      <div class="design-overlay">
-        <p class="design-overlay-title">Social Media Kit</p>
-        <p class="design-overlay-tag">Digital · Social · Content</p>
-      </div>
-    </div>
-    <!-- Square card -->
-    <div class="design-card square reveal reveal-delay-4">
-      <div class="design-bg grad-5">
-        <div class="design-pattern"></div>
-        <div class="design-shape design-shape-circle" style="width:80px;height:80px;left:20%;top:30%;right:auto;bottom:auto;"></div>
-        <span class="design-label">Typography</span>
-        <div class="design-corner"></div>
-      </div>
-      <div class="design-overlay">
-        <p class="design-overlay-title">Typographic Layout</p>
-        <p class="design-overlay-tag">Typography · Editorial · Print</p>
-      </div>
-    </div>
-    <!-- Wide card -->
-    <div class="design-card wide reveal reveal-delay-3">
-      <div class="design-bg grad-4">
-        <div class="design-pattern"></div>
-        <div class="design-shape" style="width:100%;height:1px;top:50%;left:0;background:rgba(226,111,14,0.12);border:none;"></div>
-        <div class="design-shape design-shape-circle" style="right:10%;bottom:10%;width:90px;height:90px;"></div>
-        <span class="design-label">Product Packaging</span>
-        <div class="design-corner"></div>
-      </div>
-      <div class="design-overlay">
-        <p class="design-overlay-title">Product Packaging Design</p>
-        <p class="design-overlay-tag">Packaging · 3D Mockup · Print</p>
-      </div>
-    </div>
+  <!-- Cards rendered by JS — only shows when image is set in MY_DESIGNS -->
+  <div id="design-grid" class="design-grid"></div>
+
+  <!-- Empty state -->
+  <div id="design-empty" style="display:none; text-align:center; padding:4rem 0; color:var(--text-dim);">
+    <p style="font-size:2rem; margin-bottom:0.8rem; opacity:0.3;">✏</p>
+    <p style="font-size:0.9rem; letter-spacing:0.1em;">No design projects yet.</p>
   </div>
 </section>
 
@@ -1766,7 +1715,7 @@ const MY_VIDEOS = [
     url:       "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
     title:     "1.6M Views — Viral Social Campaign",
     category:  "Social Media · Biggest Milestone",
-    featured:  true,
+    featured:  false,
     thumbnail: "images/mved.png",  // ← tambahkan thumbnail TikTok kamu di sini!
   },
   {
@@ -2023,6 +1972,177 @@ function renderCards(filter) {
 
 renderCards('all');
 
+/* ================================================================
+   DESIGNING — DATA-DRIVEN ENGINE
+   ================================================================
+
+   ✏️  CARA MENAMBAHKAN DESAIN KAMU:
+   ─────────────────────────────────
+   Edit array MY_DESIGNS di bawah ini.
+   Setiap item adalah objek dengan format:
+
+   {
+     image:       "images/nama-file.jpg",  ← WAJIB diisi agar card muncul
+     title:       "Nama Project",
+     tag:         "Kategori · Sub · Label",
+     label:       "Label kecil di pojok",
+     type:        "featured",  ← 'featured'(3 kolom) | 'wide'(2 kolom) | 'portrait' | 'square' (1 kolom)
+     gradClass:   "grad-1",    ← grad-1 s/d grad-5 (warna background)
+     aspectRatio: "16/9",      ← OPSIONAL: paksa rasio tertentu, misal "1/1", "4/3", "16/9"
+                                   Jika dikosongkan, card otomatis ikut rasio asli gambar.
+   }
+
+   ⚠️  Selama image: "" (kosong), card TIDAK akan muncul di website.
+   ✅  Isi image dengan path foto / URL → card otomatis tampil.
+
+   UKURAN CARD:
+   ─────────────────────────────────
+   • LEBAR  → ubah field "type" (lihat pilihan di atas)
+   • TINGGI → tambahkan "aspectRatio: \"16/9\"" untuk memaksa rasio,
+               atau biarkan kosong agar card menyesuaikan ukuran gambar.
+
+   LAYOUT 4-KOLOM:
+     featured  = 3 kolom (landscape besar)  → taruh paling pertama
+     wide      = 2 kolom (landscape sedang)
+     portrait  = 1 kolom (tinggi)
+     square    = 1 kolom (kotak)
+
+================================================================ */
+
+const MY_DESIGNS = [
+  /* ── SLOT 1 — Featured (3 kolom) ─────────────────────────── */
+  {
+    image:     "images/pocari 1.png",  // ← isi dengan path gambar, misal "images/design1.jpg"
+    title:     "pocari poster",
+    tag:       "poster · visual identity · typography",
+    label:     "Brand Identity",
+    type:      "square",
+    gradClass: "grad-1",
+  },
+  /* ── SLOT 2 — Portrait (1 kolom) ─────────────────────────── */
+  {
+    image:     "images/lays.png",  // ← isi dengan path gambar
+    title:     "lays poster",
+    tag:       "poster · layout · composition",
+    label:     "Poster Design",
+    type:      "square",
+    gradClass: "grad-2",
+  },
+  /* ── SLOT 3 — Square (1 kolom) ───────────────────────────── */
+  {
+    image:     "images/chitato.png",  // ← isi dengan path gambar
+    title:     "Social Media Kit",
+    tag:       "Digital · Social · Content",
+    label:     "Social Media",
+    type:      "square",
+    gradClass: "grad-3",
+  },
+  /* ── SLOT 4 — Square (1 kolom) ───────────────────────────── */
+  {
+    image:     "",  // ← isi dengan path gambar
+    title:     "Typographic Layout",
+    tag:       "Typography · Editorial · Print",
+    label:     "Typography",
+    type:      "square",
+    gradClass: "grad-5",
+  },
+  /* ── SLOT 5 — Wide (2 kolom) ─────────────────────────────── */
+  {
+    image:     "",  // ← isi dengan path gambar
+    title:     "Product Packaging Design",
+    tag:       "Packaging · 3D Mockup · Print",
+    label:     "Product Packaging",
+    type:      "wide",
+    gradClass: "grad-4",
+  },
+  /* ── TAMBAH SLOT BARU DI SINI ─────────────────────────────
+  {
+    image:     "",
+    title:     "Nama Project",
+    tag:       "Kategori · Sub",
+    label:     "Label",
+    type:      "square",
+    gradClass: "grad-1",
+  },
+  ─────────────────────────────────────────────────────────── */
+];
+
+/* ---- Render design cards ---- */
+const designGridEl = document.getElementById('design-grid');
+const designEmptyEl = document.getElementById('design-empty');
+
+function renderDesignCards() {
+  designGridEl.innerHTML = '';
+
+  const valid = MY_DESIGNS.filter(d => d.image && d.image.trim().length > 0);
+
+  if (valid.length === 0) {
+    designGridEl.style.display = 'none';
+    designEmptyEl.style.display = 'block';
+    return;
+  }
+
+  designGridEl.style.display = 'grid';
+  designEmptyEl.style.display = 'none';
+
+  const shapeMap = {
+    featured: `<div class="design-shape design-shape-circle"></div><div class="design-shape design-shape-line"></div>`,
+    portrait: `<div class="design-shape design-shape-square"></div>`,
+    square:   `<div class="design-shape" style="width:60px;height:60px;top:30%;right:30%;transform:rotate(45deg);"></div>`,
+    wide:     `<div class="design-shape" style="width:100%;height:1px;top:50%;left:0;background:rgba(226,111,14,0.12);border:none;"></div><div class="design-shape design-shape-circle" style="right:10%;bottom:10%;width:90px;height:90px;"></div>`,
+  };
+
+  valid.forEach((design, i) => {
+    const card = document.createElement('div');
+    card.className = `design-card ${design.type} reveal reveal-delay-${(i % 4) + 1}`;
+    const shapes = shapeMap[design.type] || '';
+
+    /* z-index layers:
+       0 = .design-bg (gradient fallback)
+       1 = img (the actual design image)
+       2 = .design-label / .design-corner (always visible on top of image)
+       3 = .design-overlay (hover orange panel, highest) */
+    card.innerHTML = `
+      <div class="design-bg ${design.gradClass}" style="z-index:0;">
+        <div class="design-pattern"></div>
+        ${shapes}
+      </div>
+      <span class="design-label">${design.label}</span>
+      <div class="design-corner"></div>
+      <div class="design-overlay">
+        <p class="design-overlay-title">${design.title}</p>
+        <p class="design-overlay-tag">${design.tag}</p>
+      </div>`;
+
+    /* Image sits above gradient (z-index 1).
+       aspect-ratio is set dynamically on load so the card matches the image. */
+    const img = document.createElement('img');
+    img.src = design.image.trim();
+    img.alt = design.title;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;z-index:1;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
+    img.onload = () => {
+      /* Jika ada field aspectRatio manual di data → pakai itu.
+         Kalau tidak ada → otomatis ikut rasio asli gambar. */
+      card.style.aspectRatio = design.aspectRatio
+        ? design.aspectRatio
+        : img.naturalWidth + '/' + img.naturalHeight;
+    };
+    img.onerror = () => { img.remove(); /* fallback to gradient */ };
+    /* Insert after .design-bg so it sits above the gradient */
+    const bgEl = card.querySelector('.design-bg');
+    bgEl.insertAdjacentElement('afterend', img);
+
+    /* Hover zoom on image */
+    card.addEventListener('mouseenter', () => { img.style.transform = 'scale(1.04)'; document.body.classList.add('cursor-hover'); });
+    card.addEventListener('mouseleave', () => { img.style.transform = 'scale(1)';   document.body.classList.remove('cursor-hover'); });
+
+    designGridEl.appendChild(card);
+    revealObserver.observe(card);
+  });
+}
+
+renderDesignCards();
+
 document.querySelectorAll('.pf-filter').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.pf-filter').forEach(b => b.classList.remove('active'));
@@ -2128,12 +2248,13 @@ modalClose.addEventListener('click', closeModal);
 modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-/* ---- Smooth Scroll for nav links ---- */
+/* ---- Smooth Scroll for nav links (incl. mobile nav) ---- */
 document.querySelectorAll('a[href^="#"]').forEach(link => {
   link.addEventListener('click', e => {
     const target = document.querySelector(link.getAttribute('href'));
     if (!target) return;
     e.preventDefault();
+    closeMobileNav();
     const offset = target.getBoundingClientRect().top + window.scrollY - 72;
     window.scrollTo({ top: offset, behavior: 'smooth' });
   });
