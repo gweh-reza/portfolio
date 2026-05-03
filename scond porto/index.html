@@ -4,28 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Muhamad Rezha — Video Editor & Creative Graphic Designer</title>
-
-<!-- SEO essentials -->
-<meta name="description" content="Portfolio Muhamad Rezha - Video Editor & Creative Graphic Designer. karya video editing, motion graphic, dan desain grafis.">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://zzac-portfolio.vercel.app/">
-
-<!-- Open Graph -->
-<meta property="og:title" content="Muhamad Rezha — Video Editor & Creative Graphic Designer">
-<meta property="og:description" content="Lihat portfolio video editing dan desain grafis terbaru.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://zzac-portfolio.vercel.app/">
-
-<link rel="icon" type="image/x-icon" href="favicon.ico" >
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
-
-<!-- Vercel Web Analytics -->
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
 
 <style>
 /* =========================================================
@@ -1010,16 +991,21 @@ footer {
    ========================================================= */
 @media (max-width: 900px) {
   .about-inner { grid-template-columns: 1fr; gap: 3rem; }
-  .design-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  /* Video grid: 2 columns on tablet */
+  .video-grid { grid-template-columns: 1fr 1fr; }
+  .video-card.featured-card { grid-column: span 2; aspect-ratio: 21/9; }
+  .design-grid { grid-template-columns: 1fr 1fr; }
   .design-card.featured { grid-column: span 2; }
   .design-card.wide { grid-column: span 2; }
   .nav-links { display: none; }
   #hamburger { display: flex; }
 }
 @media (max-width: 600px) {
-  .video-grid { grid-template-columns: 1fr; }
+  /* Video grid: single column on mobile — every card full width */
+  .video-grid { grid-template-columns: 1fr !important; }
+  .video-card { grid-column: span 1 !important; }
+  .video-card.featured-card { aspect-ratio: 16/9 !important; }
+  .video-card.tiktok-card   { aspect-ratio: 16/9 !important; }
   .design-grid { grid-template-columns: 1fr; }
   .design-card.featured { grid-column: span 1; }
   .design-card.wide { grid-column: span 1; }
@@ -1286,7 +1272,7 @@ footer {
         <span class="hero-title-word">PORT</span>
       </span>
       <span class="hero-title-line">
-        <span class="hero-title-word" style="color: var(--orange);">FOLIO</span>
+        <span class="hero-title-word" style="color: var(--orange);">FOLIO.</span>
       </span>
     </h1>
     <p class="hero-name"><span>Muhamad Rezha</span></p>
@@ -1546,7 +1532,7 @@ footer {
     hello@muhamadrezha.com
   </a>
   <div class="social-links reveal reveal-delay-4">
-    <a href="https://www.instagram.com/mooresez.y?utm_source=qr&igsh=eG9uMjlnN3V5dXNs" class="social-link">
+    <a href="#" class="social-link">
       <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
         <circle cx="12" cy="12" r="4"/>
@@ -1554,7 +1540,7 @@ footer {
       </svg>
       Instagram
     </a>
-    <a href="https://www.linkedin.com/in/reza-prasetya-540b922a8?utm_source=share_via&utm_content=profile&utm_medium=member_android" class="social-link">
+    <a href="#" class="social-link">
       <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/>
         <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
@@ -1675,9 +1661,16 @@ const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('visible');
+      /* Once visible, no need to keep observing static elements */
+      if (!entry.target.closest('#video-grid')) {
+        revealObserver.unobserve(entry.target);
+      }
     }
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+}, {
+  threshold: 0.05,          /* trigger when just 5% visible — better on mobile */
+  rootMargin: '0px 0px 0px 0px'  /* no negative margin — prevents missed cards */
+});
 
 reveals.forEach(el => revealObserver.observe(el));
 
@@ -1719,10 +1712,11 @@ if (counterEl) counterObserver.observe(counterEl.closest('.milestone-card'));
    Setiap video adalah sebuah objek dengan format:
 
    {
-     url:      "URL YouTube atau TikTok kamu",
-     title:    "Judul Project",
-     category: "Kategori · Durasi",   ← teks bebas
-     featured: true,                  ← opsional, membuat card LEBAR
+     url:       "URL YouTube atau TikTok kamu",
+     title:     "Judul Project",
+     category:  "Kategori · Durasi",   ← teks bebas
+     featured:  true,                  ← opsional, membuat card LEBAR
+     thumbnail: "https://...",         ← opsional, thumbnail MANUAL (gambar/foto)
    }
 
    FORMAT URL YANG DIDUKUNG:
@@ -1738,63 +1732,78 @@ if (counterEl) counterObserver.observe(counterEl.closest('.milestone-card'));
 
    THUMBNAIL:
      YouTube  → otomatis diambil dari YouTube (tidak perlu upload)
-     TikTok   → otomatis diambil via TikTok oEmbed API
+     TikTok   → gradient default (tidak bisa auto-fetch karena CORS)
+
+   THUMBNAIL MANUAL (berlaku untuk SEMUA platform):
+     Tambahkan field thumbnail: "URL_GAMBAR_KAMU" pada objek video.
+     Contoh: thumbnail: "images/thumb-project1.jpg"
+     Atau URL online: thumbnail: "https://example.com/gambar.jpg"
+     → Thumbnail manual akan MENIMPA thumbnail otomatis YouTube.
+     → Sangat berguna untuk TikTok yang tidak punya thumbnail otomatis.
 
 ================================================================ */
 
 const MY_VIDEOS = [
-  /* ── YOUTUBE ─────────────────────────────────────────────────── */
+  /* ── YOUTUBE ─────────────────────────────────────────────────────
+     Isi url: "" dengan link YouTube kamu. Biarkan kosong "" kalau
+     belum ada project → card otomatis tidak akan muncul di website.
+  ─────────────────────────────────────────────────────────────── */
   {
-    /*01*/
-    url:      "#", // ← ganti dengan URL YouTube kamu
-    title:    "Brand Campaign — Product Launch",
-    category: "Commercial · ",
-    featured: false,
+    url:       "",  // ← paste URL YouTube kamu, contoh: "https://youtu.be/XXXXXXXXXXX"
+    title:     "Brand Campaign — Product Launch",
+    category:  "Commercial · 2 min 30 sec",
+    featured:  false,
+    thumbnail: "",  // ← opsional: path gambar manual, misal "images/thumb1.jpg"
   },
   {
-    /*02*/
-    url:      "#", // ← ganti
-    title:    "Short Film — Cinematic Cut",
-    category: "Narrative ·",
-    featured: false,
+    url:       "",  // ← paste URL YouTube kamu
+    title:     "Short Film — Cinematic Cut",
+    category:  "Narrative · 6 min 14 sec",
+    featured:  false,
+    thumbnail: "",  // ← opsional: isi jika ingin thumbnail custom
   },
   {
-    /*03*/
-    url:      "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
-    title:    "1.6M Views — Viral Social Campaign",
-    category: "Social Media · Biggest Milestone",
-    featured: true,
+    url:       "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
+    title:     "1.6M Views — Viral Social Campaign",
+    category:  "Social Media · Biggest Milestone",
+    featured:  true,
+    thumbnail: "images/mved.png",  // ← tambahkan thumbnail TikTok kamu di sini!
   },
   {
-    /*04*/
-    url:      "#", // ← ganti
-    title:    "Event Highlight Reel",
-    category: "Event · ",
-    featured: false,
-  },
-
-  /* ── TIKTOK ───────────────────────────────────────────────────── */
-  {
-    /*05*/
-    url:      "https://www.tiktok.com/@rezxec/video/7389276493534203141?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti
-    title:    "Reel — F1 Content",
-    category: "TikTok · Short Form",
-    featured: false,
-  },
-  {
-    /*06*/ 
-    url:      "#", // ← ganti
-    title:    "Motion Reel — Transition Edit",
-    category: "TikTok · Cinematic",
-    featured: false,
+    url:       "https://www.tiktok.com/@rezxec/video/7389276493534203141?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469",
+    title:     "Event Highlight Reel",
+    category:  "Event · 3 min 45 sec",
+    featured:  false,
+    thumbnail: "",  // ← tambahkan thumbnail TikTok kamu di sini!
   },
 
-  /* ── TAMBAH LEBIH BANYAK VIDEO DI SINI ───────────────────────────
+  /* ── TIKTOK ───────────────────────────────────────────────────────
+     Isi url: "" dengan link TikTok kamu.
+     Format: "https://www.tiktok.com/@usernamekamu/video/1234567890"
+     ⚠️  TikTok tidak punya thumbnail otomatis — isi field thumbnail!
+  ─────────────────────────────────────────────────────────────── */
   {
-    url:      "https://www.youtube.com/watch?v=VIDEO_ID_KAMU",
-    title:    "Nama Project",
-    category: "Kategori · Durasi",
-    featured: false,
+    url:       "",  // ← paste URL TikTok kamu
+    title:     "Reel — Social Content",
+    category:  "Short Form",
+    featured:  false,
+    thumbnail: "",  // ← taruh gambar thumbnail TikTok kamu di sini
+  },
+  {
+    url:       "",  // ← paste URL TikTok kamu
+    title:     "Motion Reel — Transition Edit",
+    category:  "Cinematic",
+    featured:  false,
+    thumbnail: "",  // ← taruh gambar thumbnail TikTok kamu di sini
+  },
+
+  /* ── TAMBAH SLOT BARU DI SINI ─────────────────────────────────
+  {
+    url:       "",
+    title:     "Nama Project",
+    category:  "Kategori",
+    featured:  false,
+    thumbnail: "",  // ← opsional
   },
   ─────────────────────────────────────────────────────────────── */
 ];
@@ -1832,18 +1841,21 @@ function getYouTubeThumbnail(id, quality = 'maxresdefault') {
 }
 
 /* ----------------------------------------------------------------
-   TIKTOK OEMBED THUMBNAIL — async
+   HELPERS
    ---------------------------------------------------------------- */
-async function fetchTikTokThumb(videoUrl) {
-  try {
-    const api = `https://www.tiktok.com/oembed?url=${encodeURIComponent(videoUrl)}`;
-    const res = await fetch(api);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.thumbnail_url || null;
-  } catch {
-    return null;
-  }
+
+/* Skip placeholder slots (empty url: "") */
+function isValidEntry(v) {
+  return typeof v.url === 'string' && v.url.trim().length > 0;
+}
+
+/* Auto-generate category label from platform if user left it blank */
+function resolveCategory(video) {
+  if (video.category && video.category.trim()) return video.category;
+  const p = detectPlatform(video.url);
+  if (p === 'youtube') return 'YouTube';
+  if (p === 'tiktok')  return 'TikTok · Short Form';
+  return 'Video';
 }
 
 /* ----------------------------------------------------------------
@@ -1857,46 +1869,65 @@ const FALLBACK_GRADS = [
   'linear-gradient(135deg,#100a00,#503010)',
   'linear-gradient(135deg,#080810,#1a1a40)',
 ];
+/* TikTok gets its own distinct dark-purple/blue palette */
+const TT_GRADS = [
+  'linear-gradient(145deg,#0a0014,#1a0030,#2a004a)',
+  'linear-gradient(145deg,#000e14,#001a28,#002a3a)',
+  'linear-gradient(145deg,#0d0014,#1a0028,#240038)',
+];
 
-const YT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff">
-  <path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8z"/>
-  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff"/></svg>`;
-const TT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff">
-  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>`;
+const YT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff"/></svg>`;
+const TT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>`;
 
-function createVideoCard(video, index) {
+let _gi = 0;
+
+function createVideoCard(video, displayIndex) {
   const platform = detectPlatform(video.url);
-  const card     = document.createElement('div');
   const isTikTok = platform === 'tiktok';
-  const grad     = FALLBACK_GRADS[index % FALLBACK_GRADS.length];
+  const grad     = isTikTok
+    ? TT_GRADS[_gi % TT_GRADS.length]
+    : FALLBACK_GRADS[_gi % FALLBACK_GRADS.length];
+  _gi++;
 
-  card.className = [
-    'video-card',
-    'reveal',
-    isTikTok        ? 'tiktok-card'  : '',
-    video.featured  ? 'featured-card': '',
+  const card = document.createElement('div');
+  card.className = ['video-card','reveal',
+    isTikTok       ? 'tiktok-card'   : '',
+    video.featured ? 'featured-card' : '',
   ].filter(Boolean).join(' ');
-
-  card.style.transitionDelay = `${(index % 3) * 0.1}s`;
+  card.style.transitionDelay = `${(displayIndex % 3) * 0.08}s`;
   card.dataset.platform = platform;
 
   const badgeSvg  = isTikTok ? TT_SVG : YT_SVG;
   const badgeCls  = isTikTok ? 'badge-tiktok' : 'badge-youtube';
   const badgeName = isTikTok ? 'TikTok' : 'YouTube';
+  const category  = resolveCategory(video);
   const topRight  = video.featured
     ? `<span class="featured-ribbon">Featured</span>`
-    : `<span class="video-number">${String(index + 1).padStart(2, '0')}</span>`;
+    : `<span class="video-number">${String(displayIndex + 1).padStart(2, '0')}</span>`;
+
+  /* Thumbnail manual override: jika ada field thumbnail di data video,
+     langsung gunakan tanpa fetch apa pun — berlaku untuk semua platform.
+     YouTube fallback: auto-fetch maxresdefault → hqdefault.
+     TikTok fallback: gradient card (CORS-blocked). */
+  const hasManualThumb = video.thumbnail && video.thumbnail.trim().length > 0;
+
+  /* Skeleton hanya ditampilkan saat tidak ada thumbnail manual DAN bukan TikTok */
+  const thumbClass = (!hasManualThumb && !isTikTok) ? 'video-thumb skeleton' : 'video-thumb';
 
   card.innerHTML = `
-    <div class="video-thumb skeleton">
+    <div class="${thumbClass}">
       <div class="video-thumb-fallback" style="
-        position:absolute;inset:0;
-        background:${grad};
+        position:absolute;inset:0;background:${grad};
         background-image:
           linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
           linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
-        background-size:30px 30px;
-      "></div>
+        background-size:30px 30px;">
+      </div>
+      ${(!hasManualThumb && isTikTok) ? `<div style="position:absolute;inset:0;display:flex;align-items:center;
+          justify-content:center;opacity:0.07;pointer-events:none;">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="white">
+            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/>
+          </svg></div>` : ''}
     </div>
     <div class="video-scrim"></div>
     <span class="platform-badge ${badgeCls}">${badgeSvg}&nbsp;${badgeName}</span>
@@ -1904,51 +1935,40 @@ function createVideoCard(video, index) {
     <div class="video-play"><div class="play-triangle"></div></div>
     <div class="video-info">
       <p class="video-title">${video.title}</p>
-      <p class="video-meta">${video.category}</p>
+      <p class="video-meta">${category}</p>
     </div>`;
 
-  /* --- Async thumbnail loader --- */
-  async function loadThumbnail() {
-    const thumb = card.querySelector('.video-thumb');
+  const thumb = card.querySelector('.video-thumb');
 
-    function applyImage(src, alt) {
-      const img       = new Image();
-      img.alt         = alt;
-      img.style.cssText = `
-        position:absolute;inset:0;
-        width:100%;height:100%;
-        object-fit:cover;display:block;
-        transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);`;
-      img.onload = () => {
-        thumb.appendChild(img);
-        thumb.classList.remove('skeleton');
-      };
-      img.src = src;
-    }
+  /* ── THUMBNAIL MANUAL: prioritas utama ── */
+  if (hasManualThumb) {
+    const img = document.createElement('img');
+    img.alt = video.title;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
+    img.onload  = () => { thumb.appendChild(img); };
+    img.onerror = () => { /* fallback ke gradient jika gambar gagal dimuat */ };
+    img.src = video.thumbnail.trim();
 
-    if (platform === 'youtube') {
-      const id = extractYouTubeId(video.url);
-      if (!id) return;
-      /* Try maxresdefault → hqdefault fallback */
-      const img = new Image();
-      img.onload = () => {
-        thumb.appendChild(img);
-        thumb.classList.remove('skeleton');
-      };
+  /* ── YOUTUBE AUTO-THUMBNAIL ── */
+  } else if (platform === 'youtube') {
+    const id = extractYouTubeId(video.url);
+    if (id) {
+      const img = document.createElement('img');
+      img.alt = video.title;
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
+      img.onload  = () => { thumb.appendChild(img); thumb.classList.remove('skeleton'); };
       img.onerror = () => {
-        img.src = getYouTubeThumbnail(id, 'hqdefault');
+        if (!img._tried) { img._tried = true; img.src = getYouTubeThumbnail(id, 'hqdefault'); }
+        else { img.onerror = null; thumb.classList.remove('skeleton'); }
       };
-      img.alt         = video.title;
-      img.style.cssText = `position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);`;
       img.src = getYouTubeThumbnail(id, 'maxresdefault');
-
-    } else if (platform === 'tiktok') {
-      const thumbUrl = await fetchTikTokThumb(video.url);
-      if (thumbUrl) applyImage(thumbUrl, video.title);
+    } else {
+      thumb.classList.remove('skeleton');
     }
   }
+  /* TikTok tanpa thumbnail manual: gradient card tetap tampil. */
 
-  /* Hover zoom on thumbnail image */
+  /* Hover zoom */
   card.addEventListener('mouseenter', () => {
     const img = card.querySelector('.video-thumb img');
     if (img) img.style.transform = 'scale(1.06)';
@@ -1958,46 +1978,51 @@ function createVideoCard(video, index) {
     if (img) img.style.transform = 'scale(1)';
   });
 
-  card._loadThumb = loadThumbnail;
   return card;
 }
 
 /* ----------------------------------------------------------------
-   RENDER ALL CARDS TO GRID
+   RENDER — only non-empty URL entries shown
    ---------------------------------------------------------------- */
 const videoGrid = document.getElementById('video-grid');
 const pfEmpty   = document.getElementById('pf-empty');
 
 function renderCards(filter) {
   videoGrid.innerHTML = '';
+  _gi = 0;
 
+  /* Filter 1: skip empty-URL placeholder slots */
+  const valid = MY_VIDEOS.filter(isValidEntry);
+
+  /* Filter 2: apply platform tab */
   const list = filter === 'all'
-    ? MY_VIDEOS
-    : MY_VIDEOS.filter(v => detectPlatform(v.url) === filter);
+    ? valid
+    : valid.filter(v => detectPlatform(v.url) === filter);
 
-  pfEmpty.style.display = list.length === 0 ? 'block' : 'none';
+  const isEmpty = list.length === 0;
+  pfEmpty.style.display   = isEmpty ? 'block' : 'none';
+  videoGrid.style.display = isEmpty ? 'none'  : 'grid';
 
   list.forEach((video, i) => {
     const card = createVideoCard(video, i);
     videoGrid.appendChild(card);
     revealObserver.observe(card);
-
-    /* Cursor */
     card.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
     card.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-
-    /* Open modal on click */
     card.addEventListener('click', () => openVideoModal(video));
-
-    /* Load thumbnail */
-    card._loadThumb();
   });
+
+  /* Force-reveal cards already in viewport (mobile filter-click fix) */
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    videoGrid.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight * 0.98 && r.bottom > 0) el.classList.add('visible');
+    });
+  }));
 }
 
-/* Initial render */
 renderCards('all');
 
-/* Platform filter buttons */
 document.querySelectorAll('.pf-filter').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.pf-filter').forEach(b => b.classList.remove('active'));
@@ -2006,6 +2031,9 @@ document.querySelectorAll('.pf-filter').forEach(btn => {
   });
 });
 
+/* ----------------------------------------------------------------
+   CARD BUILDER
+   ---------------------------------------------------------------- */
 /* ================================================================
    VIDEO MODAL
 ================================================================ */
