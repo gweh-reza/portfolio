@@ -555,16 +555,27 @@ section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  grid-auto-rows: 1fr;
 }
 .video-card {
   position: relative; border-radius: 2px; overflow: hidden;
   background: var(--bg-3); border: 1px solid var(--border);
-  aspect-ratio: 16/10; cursor: none;
+  /*aspect-ratio: 16/10; cursor: none;*/
+  aspect-ratio: auto;
+  height: 100%;
+  min-height: 220px;
+  cursor: none;
   transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
 }
-.video-card.tiktok-card { aspect-ratio: 9/14; }
+.video-card.tiktok-card { 
+  aspect-ratio: auto;
+  height: 100%
+ }
 .video-card.featured-card {
-  grid-column: span 2; aspect-ratio: 32/10;
+  grid-column: span 2; 
+  aspect-ratio: auto;
+  height: 100%;
+  min-height: 240px;
 }
 .video-card:hover {
   transform: translateY(-6px);
@@ -1010,10 +1021,10 @@ footer {
 }
 @media (max-width: 600px) {
   /* Video grid: single column on mobile */
-  .video-grid { grid-template-columns: 1fr !important; }
-  .video-card { grid-column: span 1 !important; }
-  .video-card.featured-card { aspect-ratio: 16/9 !important; }
-  .video-card.tiktok-card   { aspect-ratio: 16/9 !important; }
+  .video-grid { grid-template-columns: 1fr !important; grid-auto-rows: auto;}
+  .video-card { grid-column: span 1 !important; aspect-ratio: auto !important; height: auto; min-height: 200px;}
+  .video-card.featured-card { aspect-ratio: auto !important; grid-column: span 1 !important;}
+  .video-card.tiktok-card   { aspect-ratio: auto !important; max-width: 100%; margin: 0;}
   /* Design grid: single column on mobile */
   .design-grid { grid-template-columns: 1fr !important; }
   .design-card.featured,
@@ -1699,6 +1710,13 @@ const MY_VIDEOS = [
      belum ada project → card otomatis tidak akan muncul di website.
   ─────────────────────────────────────────────────────────────── */
   {
+    url:       "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
+    title:     "1.6M Views — Viral Social Campaign",
+    category:  "Social Media · Biggest Milestone",
+    featured:  false,
+    thumbnail: "images/mved.png",  // ← tambahkan thumbnail TikTok kamu di sini!
+  },
+  {
     url:       "https://youtu.be/oVdG6LXH6C0?si=9lk8Mug0wyvhhskT",  // ← paste URL YouTube kamu, contoh: "https://youtu.be/XXXXXXXXXXX"
     title:     "Brand Campaign — Product Launch",
     category:  "Commercial · 2 min 30 sec",
@@ -1712,13 +1730,7 @@ const MY_VIDEOS = [
     featured:  false,
     thumbnail: "",  // ← opsional: isi jika ingin thumbnail custom
   },
-  {
-    url:       "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
-    title:     "1.6M Views — Viral Social Campaign",
-    category:  "Social Media · Biggest Milestone",
-    featured:  false,
-    thumbnail: "images/mved.png",  // ← tambahkan thumbnail TikTok kamu di sini!
-  },
+  
   {
     url:       "https://www.tiktok.com/@rezxec/video/7389276493534203141?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469",
     title:     "Event Highlight Reel",
