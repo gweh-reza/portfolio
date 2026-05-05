@@ -572,10 +572,10 @@ section {
   height: 100%
  }
 .video-card.featured-card {
-  grid-column: span 2; 
-  aspect-ratio: auto;
-  height: 100%;
-  min-height: 240px;
+  grid-column: 1/-1; 
+  aspect-ratio: 21/9;
+  /* height: 100%;
+  min-height: 240px; */
 }
 .video-card:hover {
   transform: translateY(-6px);
@@ -646,7 +646,7 @@ section {
   font-size: 0.75rem; letter-spacing: 0.12em;
   color: rgba(255,255,255,0.25);
 }
-.video-card.featured-card .video-number { right: auto; left: 1rem; top: auto; bottom: 4.5rem; }
+.video-card.featured-card .video-number { top: 1rem; right: 1rem; left: auto; bottom: auto; }
 
 /* Play button */
 .video-play {
@@ -1008,8 +1008,8 @@ footer {
 @media (max-width: 900px) {
   .about-inner { grid-template-columns: 1fr; gap: 3rem; }
   /* Video grid: 2 columns on tablet */
-  .video-grid { grid-template-columns: 1fr 1fr; }
-  .video-card.featured-card { grid-column: span 2; aspect-ratio: 21/9; }
+  .video-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem;}
+  .video-card.featured-card { grid-column: 1/-1; aspect-ratio: 21/9; }
   /* Design grid: 2 columns on tablet */
   .design-grid { grid-template-columns: repeat(2, 1fr); }
   .design-card.featured { grid-column: span 2; }
@@ -1021,10 +1021,11 @@ footer {
 }
 @media (max-width: 600px) {
   /* Video grid: single column on mobile */
-  .video-grid { grid-template-columns: 1fr !important; grid-auto-rows: auto;}
+  .video-grid { grid-template-columns: 1fr !important; gap: 0.9rem !important; }
   .video-card { grid-column: span 1 !important; aspect-ratio: auto !important; height: auto; min-height: 200px;}
   .video-card.featured-card { aspect-ratio: auto !important; grid-column: span 1 !important;}
-  .video-card.tiktok-card   { aspect-ratio: auto !important; max-width: 100%; margin: 0;}
+  .video-card.tiktok-card { grid-column: 1 / -1 !important; aspect-ratio: 16/9 !important; max-width: 100% !important; margin: 0 !important; }
+ 
   /* Design grid: single column on mobile */
   .design-grid { grid-template-columns: 1fr !important; }
   .design-card.featured,
@@ -1036,10 +1037,13 @@ footer {
   .btn { width: 100%; justify-content: center; }
   .portfolio-header { flex-direction: column; align-items: flex-start; }
   footer { flex-direction: column; text-align: center; }
+  
   /* Featured card: full width on mobile */
   .featured-card { grid-column: span 1 !important; aspect-ratio: 16/9 !important; }
+  
   /* TikTok cards: narrower on mobile */
   .tiktok-card  { aspect-ratio: 9/16; max-width: 280px; margin: 0 auto; }
+  
   /* Modal portrait: full height */
   #modal-video-wrap.ratio-portrait { height: 70vh; }
 }
@@ -1143,10 +1147,10 @@ footer {
   color: rgba(255,255,255,0.22); z-index: 3;
 }
 
-/* Featured card spans 2 columns */
+/* Featured card spans 2 columns 
 .featured-card { grid-column: span 2; aspect-ratio: 32/10 !important; }
 
-/* TikTok cards: portrait ratio */
+ TikTok cards: portrait ratio 
 .tiktok-card { aspect-ratio: 9/16; }
 
 /* Override video-info z-index to sit above scrim */
@@ -1713,7 +1717,7 @@ const MY_VIDEOS = [
     url:       "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
     title:     "1.6M Views — Viral Social Campaign",
     category:  "Social Media · Biggest Milestone",
-    featured:  false,
+    featured:  true,
     thumbnail: "images/mved.png",  // ← tambahkan thumbnail TikTok kamu di sini!
   },
   {
