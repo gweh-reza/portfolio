@@ -1709,77 +1709,93 @@ if (counterEl) counterObserver.observe(counterEl.closest('.milestone-card'));
 ================================================================ */
 
 const MY_VIDEOS = [
-  /* ── YOUTUBE ─────────────────────────────────────────────────────
-     Isi url: "" dengan link YouTube kamu. Biarkan kosong "" kalau
-     belum ada project → card otomatis tidak akan muncul di website.
-  ─────────────────────────────────────────────────────────────── */
+  /* ──────────────────────────────────────────────────────────────
+     ✏️  FIELD "platform" WAJIB DIISI MANUAL:
+         "youtube"  → badge YouTube (merah)
+         "tiktok"   → badge TikTok (hitam)
+         "local"    → badge Local (teal) + file diputar pakai video player
+
+     Biarkan url: "" kalau belum ada → card tidak muncul.
+  ────────────────────────────────────────────────────────────── */
   {
-    url:       "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469", // ← ganti — ini card FEATURED (lebar)
+    url:       "https://www.tiktok.com/@rezxec/video/7554055334327831816?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469",
+    platform:  "tiktok",           // ← badge TikTok
     title:     "1.6M Views — Viral Social Campaign",
     category:  "Social Media · Biggest Milestone",
     featured:  true,
-    thumbnail: "images/mved.png",  // ← tambahkan thumbnail TikTok kamu di sini!
+    thumbnail: "images/mved.png",
   },
-  {
-    url:       "",  // ← paste URL YouTube kamu, contoh: "https://youtu.be/XXXXXXXXXXX"
-    title:     "Brand Campaign — Product Launch",
-    category:  "Commercial · 2 min 30 sec",
-    featured:  false,
-    thumbnail: "",  // ← opsional: path gambar manual, misal "images/thumb1.jpg"
-  },
-  {
-    url:       "",  // ← paste URL YouTube kamu
-    title:     "Short Film — Cinematic Cut",
-    category:  "Narrative · 6 min 14 sec",
-    featured:  false,
-    thumbnail: "",  // ← opsional: isi jika ingin thumbnail custom
-  },
-  
   {
     url:       "https://www.tiktok.com/@rezxec/video/7389276493534203141?is_from_webapp=1&sender_device=pc&web_id=7572885932237096469",
+    platform:  "tiktok",           // ← badge TikTok
     title:     "Max Verstappen",
     category:  "F1 · 770K Views",
     featured:  false,
-    thumbnail: "images/tumb-mx.jpg",  // ← tambahkan thumbnail TikTok kamu di sini!
-  },
-
-  /* ── TIKTOK ───────────────────────────────────────────────────────
-     Isi url: "" dengan link TikTok kamu.
-     Format: "https://www.tiktok.com/@usernamekamu/video/1234567890"
-     ⚠️  TikTok tidak punya thumbnail otomatis — isi field thumbnail!
-  ─────────────────────────────────────────────────────────────── */
-  {
-    url:       "",  // ← paste URL TikTok kamu
-    title:     "Reel — Social Content",
-    category:  "Short Form",
-    featured:  false,
-    thumbnail: "",  // ← taruh gambar thumbnail TikTok kamu di sini
+    thumbnail: "images/tumb-mx.jpg",
   },
   {
-    url:       "",  // ← paste URL TikTok kamu
-    title:     "Motion Reel — Transition Edit",
-    category:  "Cinematic",
+    url:       "images/wec movie3.mp4",
+    platform:  "local",            // ← badge tiktok, diputar pakai video player
+    title:     "Only Will to Survive",
+    category:  "24h Le Mans WEC and Nurburging",
     featured:  false,
-    thumbnail: "",  // ← taruh gambar thumbnail TikTok kamu di sini
+    thumbnail: "",  // ← kosongkan untuk auto-thumbnail dari video, atau isi path gambar
+  },
+  {
+    url:       "images/travel.mp4",
+    platform:  "local",  // ← pilih: "youtube", "tiktok", atau "local"
+    title:     "Trending Cinematic Travel",
+    category:  "Holiday",
+    featured:  false,
+    thumbnail: "",
+  },
+  {
+    url:       "images/tugas sekolah.mp4",
+    platform:  "local",  // ← pilih: "youtube", "tiktok", atau "local"
+    title:     "School Project Motion Graphics",
+    category:  "Motion Graphics",
+    featured:  false,
+    thumbnail: "",
+  },
+  {
+    url:       "images/f1 movie.mp4",
+    platform:  "local",  // ← pilih: "youtube", "tiktok", atau "local"
+    title:     "Formula 1 Movie ",
+    category:  "Race Car",
+    featured:  false,
+    thumbnail: "",
+  },
+  {
+    url:       "images/task test.mp4",
+    platform:  "local",  // ← pilih: "youtube", "tiktok", atau "local"
+    title:     "Property Cinematic Video ",
+    category:  "Cinematic Video",
+    featured:  false,
+    thumbnail: "",
   },
 
-  /* ── TAMBAH SLOT BARU DI SINI ─────────────────────────────────
+  /* ── TAMBAH SLOT BARU ─────────────────────────────────────────
   {
     url:       "",
+    platform:  "local",  // ← pilih: "youtube", "tiktok", atau "local"
     title:     "Nama Project",
     category:  "Kategori",
     featured:  false,
-    thumbnail: "",  // ← opsional
+    thumbnail: "",
   },
-  ─────────────────────────────────────────────────────────────── */
+  ────────────────────────────────────────────────────────────── */
 ];
 
 /* ----------------------------------------------------------------
-   PLATFORM DETECTION & ID EXTRACTION
+   PLATFORM — MANUAL FIELD FIRST, FALLBACK AUTO-DETECT
    ---------------------------------------------------------------- */
-function detectPlatform(url) {
-  if (/tiktok\.com/i.test(url))              return 'tiktok';
-  if (/youtube\.com|youtu\.be/i.test(url))   return 'youtube';
+function resolvePlatform(video) {
+  /* Prioritas 1: field "platform" yang diisi manual di data */
+  if (video.platform && video.platform.trim().length > 0) return video.platform.trim().toLowerCase();
+  /* Prioritas 2: auto-detect dari URL */
+  if (/tiktok\.com/i.test(video.url))              return 'tiktok';
+  if (/youtube\.com|youtu\.be/i.test(video.url))   return 'youtube';
+  if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(video.url)) return 'local';
   return 'unknown';
 }
 
@@ -1818,9 +1834,10 @@ function isValidEntry(v) {
 /* Auto-generate category label from platform if user left it blank */
 function resolveCategory(video) {
   if (video.category && video.category.trim()) return video.category;
-  const p = detectPlatform(video.url);
+  const p = resolvePlatform(video);
   if (p === 'youtube') return 'YouTube';
   if (p === 'tiktok')  return 'TikTok · Short Form';
+  if (p === 'local')   return 'Local · Video File';
   return 'Video';
 }
 
@@ -1844,12 +1861,14 @@ const TT_GRADS = [
 
 const YT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff"/></svg>`;
 const TT_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>`;
+const LOCAL_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>`;
 
 let _gi = 0;
 
 function createVideoCard(video, displayIndex) {
-  const platform = detectPlatform(video.url);
+  const platform = resolvePlatform(video);
   const isTikTok = platform === 'tiktok';
+  const isLocal  = platform === 'local';
   const grad     = isTikTok
     ? TT_GRADS[_gi % TT_GRADS.length]
     : FALLBACK_GRADS[_gi % FALLBACK_GRADS.length];
@@ -1863,22 +1882,35 @@ function createVideoCard(video, displayIndex) {
   card.style.transitionDelay = `${(displayIndex % 3) * 0.08}s`;
   card.dataset.platform = platform;
 
-  const badgeSvg  = isTikTok ? TT_SVG : YT_SVG;
-  const badgeCls  = isTikTok ? 'badge-tiktok' : 'badge-youtube';
-  const badgeName = isTikTok ? 'TikTok' : 'YouTube';
+  /* Badge ditentukan oleh field platform yang sudah di-resolve */
+  const badgeSvg  = isLocal ? LOCAL_SVG : (isTikTok ? TT_SVG : YT_SVG);
+  const badgeCls  = isLocal ? 'badge-local' : (isTikTok ? 'badge-tiktok' : 'badge-youtube');
+  const badgeName = isLocal ? 'Local' : (isTikTok ? 'TikTok' : 'YouTube');
   const category  = resolveCategory(video);
   const topRight  = video.featured
     ? `<span class="featured-ribbon">Featured</span>`
     : `<span class="video-number">${String(displayIndex + 1).padStart(2, '0')}</span>`;
 
-  /* Thumbnail manual override: jika ada field thumbnail di data video,
-     langsung gunakan tanpa fetch apa pun — berlaku untuk semua platform.
-     YouTube fallback: auto-fetch maxresdefault → hqdefault.
-     TikTok fallback: gradient card (CORS-blocked). */
   const hasManualThumb = video.thumbnail && video.thumbnail.trim().length > 0;
 
-  /* Skeleton hanya ditampilkan saat tidak ada thumbnail manual DAN bukan TikTok */
-  const thumbClass = (!hasManualThumb && !isTikTok) ? 'video-thumb skeleton' : 'video-thumb';
+  /* Skeleton hanya ditampilkan saat tidak ada thumbnail manual DAN bukan TikTok/Local */
+  const thumbClass = (!hasManualThumb && !isTikTok && !isLocal) ? 'video-thumb skeleton' : 'video-thumb';
+
+  /* Ikon watermark background untuk card tanpa thumbnail */
+  let watermarkSvg = '';
+  if (!hasManualThumb && isTikTok) {
+    watermarkSvg = `<div style="position:absolute;inset:0;display:flex;align-items:center;
+        justify-content:center;opacity:0.07;pointer-events:none;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="white">
+          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/>
+        </svg></div>`;
+  } else if (!hasManualThumb && isLocal) {
+    watermarkSvg = `<div style="position:absolute;inset:0;display:flex;align-items:center;
+        justify-content:center;opacity:0.07;pointer-events:none;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="white">
+          <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/>
+        </svg></div>`;
+  }
 
   card.innerHTML = `
     <div class="${thumbClass}">
@@ -1889,11 +1921,7 @@ function createVideoCard(video, displayIndex) {
           linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
         background-size:30px 30px;">
       </div>
-      ${(!hasManualThumb && isTikTok) ? `<div style="position:absolute;inset:0;display:flex;align-items:center;
-          justify-content:center;opacity:0.07;pointer-events:none;">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="white">
-            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/>
-          </svg></div>` : ''}
+      ${watermarkSvg}
     </div>
     <div class="video-scrim"></div>
     <span class="platform-badge ${badgeCls}">${badgeSvg}&nbsp;${badgeName}</span>
@@ -1932,6 +1960,32 @@ function createVideoCard(video, displayIndex) {
       thumb.classList.remove('skeleton');
     }
   }
+
+  /* ── LOCAL VIDEO AUTO-THUMBNAIL: ambil frame dari video ── */
+  if (!hasManualThumb && isLocal) {
+    const vid = document.createElement('video');
+    vid.src = video.url;
+    vid.muted = true;
+    vid.preload = 'metadata';
+    vid.addEventListener('loadeddata', () => {
+      vid.currentTime = 1;
+    });
+    vid.addEventListener('seeked', () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width  = vid.videoWidth;
+        canvas.height = vid.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+        const thumbImg = document.createElement('img');
+        thumbImg.alt = video.title;
+        thumbImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
+        thumbImg.src = canvas.toDataURL('image/jpeg', 0.8);
+        thumb.appendChild(thumbImg);
+      } catch(e) { /* fallback ke gradient */ }
+    });
+  }
+
   /* TikTok tanpa thumbnail manual: gradient card tetap tampil. */
 
   /* Hover zoom */
@@ -1960,10 +2014,10 @@ function renderCards(filter) {
   /* Filter 1: skip empty-URL placeholder slots */
   const valid = MY_VIDEOS.filter(isValidEntry);
 
-  /* Filter 2: apply platform tab */
+  /* Filter 2: apply platform tab (pakai resolvePlatform untuk baca field manual) */
   const list = filter === 'all'
     ? valid
-    : valid.filter(v => detectPlatform(v.url) === filter);
+    : valid.filter(v => resolvePlatform(v) === filter);
 
   const isEmpty = list.length === 0;
   pfEmpty.style.display   = isEmpty ? 'block' : 'none';
@@ -2182,37 +2236,42 @@ const modalMeta  = document.getElementById('modal-meta');
 const modalBadge = document.getElementById('modal-platform-badge');
 
 function openVideoModal(video) {
-  const platform = detectPlatform(video.url);
+  const platform = resolvePlatform(video);
   const isTikTok = platform === 'tiktok';
+  const isLocal  = platform === 'local';
 
   /* Clear previous content */
   modalWrap.innerHTML = '';
 
-  /* Set ratio class: portrait for TikTok, landscape for YouTube */
+  /* Set ratio class: portrait for TikTok, landscape for YouTube/Local */
   modalWrap.className = isTikTok ? 'ratio-portrait' : 'ratio-landscape';
 
   /* Platform badge label */
-  const badgeSvg  = isTikTok ? TT_SVG : YT_SVG;
-  modalBadge.innerHTML = `${badgeSvg}&nbsp; ${isTikTok ? 'TikTok' : 'YouTube'}`;
+  const badgeSvg = isLocal ? LOCAL_SVG : (isTikTok ? TT_SVG : YT_SVG);
+  const badgeLabel = isLocal ? 'Local' : (isTikTok ? 'TikTok' : 'YouTube');
+  modalBadge.innerHTML = `${badgeSvg}&nbsp; ${badgeLabel}`;
 
   modalTitle.textContent = video.title    || '';
   modalMeta.textContent  = video.category || '';
 
-  /* "Open original" link */
+  /* "Open original" link — hide for local files */
   let openLink = document.getElementById('modal-open-link');
-  if (!openLink) {
-    openLink = document.createElement('a');
-    openLink.id     = 'modal-open-link';
-    openLink.target = '_blank';
-    openLink.rel    = 'noopener noreferrer';
-    openLink.innerHTML = `Open on ${isTikTok ? 'TikTok' : 'YouTube'} ↗`;
-    document.getElementById('modal-info').appendChild(openLink);
+  if (isLocal) {
+    if (openLink) openLink.style.display = 'none';
   } else {
+    if (!openLink) {
+      openLink = document.createElement('a');
+      openLink.id     = 'modal-open-link';
+      openLink.target = '_blank';
+      openLink.rel    = 'noopener noreferrer';
+      document.getElementById('modal-info').appendChild(openLink);
+    }
+    openLink.style.display = 'inline-flex';
     openLink.innerHTML = `Open on ${isTikTok ? 'TikTok' : 'YouTube'} ↗`;
+    openLink.href = video.url;
   }
-  openLink.href = video.url;
 
-  /* Build player iframe */
+  /* Build player */
   if (platform === 'youtube') {
     const id = extractYouTubeId(video.url);
     if (!id) { showModalError('Tidak dapat membaca YouTube ID dari URL ini.'); return; }
@@ -2227,15 +2286,25 @@ function openVideoModal(video) {
     const id = extractTikTokId(video.url);
     if (!id) { showModalError('Tidak dapat membaca TikTok video ID dari URL ini.'); return; }
     const iframe = document.createElement('iframe');
-    /* TikTok embed v2 */
     iframe.src = `https://www.tiktok.com/embed/v2/${id}`;
     iframe.allow = 'autoplay; fullscreen';
     iframe.allowFullscreen = true;
     iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
     modalWrap.appendChild(iframe);
 
+  } else if (platform === 'local') {
+    /* Native HTML5 video player untuk file lokal */
+    const vidEl = document.createElement('video');
+    vidEl.src = video.url;
+    vidEl.controls = true;
+    vidEl.autoplay = true;
+    vidEl.style.cssText = 'width:100%;height:100%;display:block;background:#000;';
+    vidEl.setAttribute('controlsList', 'nodownload');
+    vidEl.setAttribute('playsinline', '');
+    modalWrap.appendChild(vidEl);
+
   } else {
-    showModalError('Platform tidak dikenali. Gunakan link YouTube atau TikTok.');
+    showModalError('Platform tidak dikenali. Tambahkan field platform: "youtube", "tiktok", atau "local".');
     return;
   }
 
@@ -2256,6 +2325,9 @@ function showModalError(msg) {
 }
 
 function closeModal() {
+  /* Stop video/audio playback sebelum close */
+  const vid = modalWrap.querySelector('video');
+  if (vid) { vid.pause(); vid.src = ''; }
   modal.style.display = 'none';
   modalWrap.innerHTML = '';
   document.body.style.overflow = '';
