@@ -1551,19 +1551,28 @@ const cursorDot   = document.getElementById('cursor-dot');
 let mouseX = 0, mouseY = 0;
 let outerX = 0, outerY = 0;
 
+let cursorNeedUpdate = false;
+
 document.addEventListener('mousemove', e => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   cursorDot.style.left = mouseX + 'px';
   cursorDot.style.top  = mouseY + 'px';
+  cursorNeedUpdate = true; 
 });
-
+// Tambahkan di bagian cursor JS
+if (window.matchMedia('(pointer: coarse)').matches) {
+  // Device sentuh (HP/tablet) → sembunyikan cursor custom
+  document.getElementById('cursor-outer').style.display = 'none';
+  document.getElementById('cursor-dot').style.display = 'none';
+  document.body.style.cursor = 'auto'; // kembalikan cursor normal
+} else {}
 /* Smooth outer cursor follow */
 function animateCursor() {
-  outerX += (mouseX - outerX) * 0.12;
-  outerY += (mouseY - outerY) * 0.12;
-  cursorOuter.style.left = outerX + 'px';
-  cursorOuter.style.top  = outerY + 'px';
+    outerX += (mouseX - outerX) * 0.12;
+    outerY += (mouseY - outerY) * 0.12;
+    cursorOuter.style.left = outerX + 'px';
+    cursorOuter.style.top  = outerY + 'px';
   requestAnimationFrame(animateCursor);
 }
 animateCursor();
@@ -2298,6 +2307,7 @@ function openVideoModal(video) {
     vidEl.src = video.url;
     vidEl.controls = true;
     vidEl.autoplay = true;
+    vidEl.preload = 'none';
     vidEl.style.cssText = 'width:100%;height:100%;display:block;background:#000;';
     vidEl.setAttribute('controlsList', 'nodownload');
     vidEl.setAttribute('playsinline', '');
