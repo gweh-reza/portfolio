@@ -72,9 +72,11 @@ button { cursor: none; border: none; background: none; font-family: inherit; }
   position: fixed; top: 0; left: 0;
   pointer-events: none; z-index: 99999;
   transform: translate(-50%, -50%);
-  transition: transform 0.12s ease, width 0.25s ease, height 0.25s ease,
-              border-color 0.25s ease, background 0.25s ease;
+  transition: width 0.25s ease, height 0.25s ease,
+              border-color 0.25s ease, background 0.25s ease,
+              border-radius 0.25s ease;
   mix-blend-mode: normal;
+  will-change: transform;
 }
 #cursor-dot {
   width: 6px; height: 6px;
@@ -83,7 +85,7 @@ button { cursor: none; border: none; background: none; font-family: inherit; }
   position: fixed; top: 0; left: 0;
   pointer-events: none; z-index: 100000;
   transform: translate(-50%, -50%);
-  transition: transform 0.04s ease;
+  will-change: transform;
 }
 body.cursor-hover #cursor-outer {
   width: 60px; height: 60px;
@@ -118,9 +120,15 @@ body::before {
   transition: background 0.4s ease, border-bottom 0.4s ease;
 }
 #navbar.scrolled {
-  background: rgba(8,8,8,0.88);
+  background: rgba(8,8,8,0.92);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(20px);
+}
+@media (max-width: 768px) {
+  #navbar.scrolled { backdrop-filter: none; background: rgba(8,8,8,0.97); }
+  [data-theme="light"] #navbar.scrolled { background: rgba(244,240,235,0.97); }
+  .hero-orb { filter: blur(40px); opacity: 0.09; }
+  .platform-badge { backdrop-filter: none !important; }
 }
 [data-theme="light"] #navbar.scrolled {
   background: rgba(244,240,235,0.88);
@@ -237,6 +245,7 @@ body::before {
   border-radius: 50%;
   filter: blur(80px);
   opacity: 0.15;
+  will-change: transform;
 }
 .hero-orb-1 {
   width: 600px; height: 600px;
@@ -398,6 +407,11 @@ body::before {
 section {
   position: relative;
   padding: 10vh 5vw;
+}
+/* Sections jauh dari viewport di-skip browser saat paint — hemat CPU/GPU */
+#portfolio, #designing, #about, #contact {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 800px;
 }
 .section-label {
   font-size: 0.72rem;
@@ -1512,12 +1526,12 @@ footer {
       </svg>
       LinkedIn
     </a>
-    <a href="#" class="social-link">
+    <!--<a href="#" class="social-link">
       <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.4 5.6 4 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
       </svg>
       Twitter / X
-    </a>
+    </a>-->
     <!--<a href="#" class="social-link">
       <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/>
@@ -1545,46 +1559,51 @@ footer {
      JAVASCRIPT
      ========================================================= -->
 <script>
-/* ---- Custom Cursor ---- */
+/* ---- Custom Cursor (OPTIMIZED) ---- */
 const cursorOuter = document.getElementById('cursor-outer');
 const cursorDot   = document.getElementById('cursor-dot');
 let mouseX = 0, mouseY = 0;
 let outerX = 0, outerY = 0;
+let cursorNeedsUpdate = false;
 
-let cursorNeedUpdate = false;
-
+/* Dot: langsung snap pakai CSS transform — tidak trigger reflow */
 document.addEventListener('mousemove', e => {
   mouseX = e.clientX;
   mouseY = e.clientY;
-  cursorDot.style.left = mouseX + 'px';
-  cursorDot.style.top  = mouseY + 'px';
-  cursorNeedUpdate = true; 
+  cursorDot.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
+  cursorNeedsUpdate = true;
 });
-// Tambahkan di bagian cursor JS
-if (window.matchMedia('(pointer: coarse)').matches) {
-  // Device sentuh (HP/tablet) → sembunyikan cursor custom
-  document.getElementById('cursor-outer').style.display = 'none';
-  document.getElementById('cursor-dot').style.display = 'none';
-  document.body.style.cursor = 'auto'; // kembalikan cursor normal
-} else {}
-/* Smooth outer cursor follow */
+
+/* Outer ring: smooth follow, hanya hitung saat ada pergerakan */
 function animateCursor() {
+  if (cursorNeedsUpdate) {
     outerX += (mouseX - outerX) * 0.12;
     outerY += (mouseY - outerY) * 0.12;
-    cursorOuter.style.left = outerX + 'px';
-    cursorOuter.style.top  = outerY + 'px';
+    cursorOuter.style.transform = `translate(calc(${outerX}px - 50%), calc(${outerY}px - 50%))`;
+    if (Math.abs(mouseX - outerX) < 0.4 && Math.abs(mouseY - outerY) < 0.4) {
+      cursorNeedsUpdate = false;
+    }
+  }
   requestAnimationFrame(animateCursor);
 }
 animateCursor();
 
-/* Cursor hover states */
-document.querySelectorAll('a, button, .video-card, .design-card').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+/* Cursor hover states: 1 listener di document, bukan forEach per-elemen */
+document.addEventListener('mouseover', e => {
+  const isInteractive = !!e.target.closest('a, button, .video-card, .design-card');
+  const isText        = !!e.target.closest('p, h1, h2, h3') && !isInteractive;
+  document.body.classList.toggle('cursor-hover', isInteractive);
+  document.body.classList.toggle('cursor-text',  isText);
 });
-document.querySelectorAll('p, h1, h2, h3').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-text'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-text'));
+
+/* Sembunyikan cursor saat keluar window */
+document.addEventListener('mouseleave', () => {
+  cursorOuter.style.opacity = '0';
+  cursorDot.style.opacity   = '0';
+});
+document.addEventListener('mouseenter', () => {
+  cursorOuter.style.opacity = '1';
+  cursorDot.style.opacity   = '1';
 });
 
 /* ---- Navbar scroll effect ---- */
@@ -1943,13 +1962,16 @@ function createVideoCard(video, displayIndex) {
 
   const thumb = card.querySelector('.video-thumb');
 
+  const THUMB_STYLE = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
+
   /* ── THUMBNAIL MANUAL: prioritas utama ── */
   if (hasManualThumb) {
     const img = document.createElement('img');
-    img.alt = video.title;
-    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
-    img.onload  = () => { thumb.appendChild(img); };
-    img.onerror = () => { /* fallback ke gradient jika gambar gagal dimuat */ };
+    img.alt      = video.title;
+    img.decoding = 'async';
+    img.style.cssText = THUMB_STYLE;
+    img.onload  = () => thumb.appendChild(img);
+    img.onerror = () => {};
     img.src = video.thumbnail.trim();
 
   /* ── YOUTUBE AUTO-THUMBNAIL ── */
@@ -1957,8 +1979,9 @@ function createVideoCard(video, displayIndex) {
     const id = extractYouTubeId(video.url);
     if (id) {
       const img = document.createElement('img');
-      img.alt = video.title;
-      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
+      img.alt      = video.title;
+      img.decoding = 'async';
+      img.style.cssText = THUMB_STYLE;
       img.onload  = () => { thumb.appendChild(img); thumb.classList.remove('skeleton'); };
       img.onerror = () => {
         if (!img._tried) { img._tried = true; img.src = getYouTubeThumbnail(id, 'hqdefault'); }
@@ -1970,29 +1993,34 @@ function createVideoCard(video, displayIndex) {
     }
   }
 
-  /* ── LOCAL VIDEO AUTO-THUMBNAIL: ambil frame dari video ── */
+  /* ── LOCAL VIDEO AUTO-THUMBNAIL: lazy — load hanya saat card masuk viewport ── */
   if (!hasManualThumb && isLocal) {
-    const vid = document.createElement('video');
-    vid.src = video.url;
-    vid.muted = true;
-    vid.preload = 'metadata';
-    vid.addEventListener('loadeddata', () => {
-      vid.currentTime = 1;
-    });
-    vid.addEventListener('seeked', () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width  = vid.videoWidth;
-        canvas.height = vid.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-        const thumbImg = document.createElement('img');
-        thumbImg.alt = video.title;
-        thumbImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
-        thumbImg.src = canvas.toDataURL('image/jpeg', 0.8);
-        thumb.appendChild(thumbImg);
-      } catch(e) { /* fallback ke gradient */ }
-    });
+    const localThumbObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        obs.unobserve(entry.target);
+        const vid = document.createElement('video');
+        vid.src     = video.url;
+        vid.muted   = true;
+        vid.preload = 'metadata';
+        vid.addEventListener('loadeddata', () => { vid.currentTime = 1; });
+        vid.addEventListener('seeked', () => {
+          try {
+            const canvas = document.createElement('canvas');
+            const scale  = Math.min(1, 640 / (vid.videoWidth || 640));
+            canvas.width  = Math.round((vid.videoWidth  || 640) * scale);
+            canvas.height = Math.round((vid.videoHeight || 360) * scale);
+            canvas.getContext('2d').drawImage(vid, 0, 0, canvas.width, canvas.height);
+            const thumbImg = document.createElement('img');
+            thumbImg.alt   = video.title;
+            thumbImg.style.cssText = THUMB_STYLE;
+            thumbImg.src   = canvas.toDataURL('image/jpeg', 0.7);
+            thumb.appendChild(thumbImg);
+          } catch(e) {}
+        });
+      });
+    }, { rootMargin: '200px 0px' });
+    localThumbObserver.observe(card);
   }
 
   /* TikTok tanpa thumbnail manual: gradient card tetap tampil. */
@@ -2032,22 +2060,28 @@ function renderCards(filter) {
   pfEmpty.style.display   = isEmpty ? 'block' : 'none';
   videoGrid.style.display = isEmpty ? 'none'  : 'grid';
 
-  list.forEach((video, i) => {
-    const card = createVideoCard(video, i);
-    videoGrid.appendChild(card);
-    revealObserver.observe(card);
-    card.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-    card.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-    card.addEventListener('click', () => openVideoModal(video));
-  });
-
-  /* Force-reveal cards already in viewport (mobile filter-click fix) */
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    videoGrid.querySelectorAll('.reveal:not(.visible)').forEach(el => {
-      const r = el.getBoundingClientRect();
-      if (r.top < window.innerHeight * 0.98 && r.bottom > 0) el.classList.add('visible');
+  /* Render bertahap per 3 card agar browser tidak freeze saat load awal */
+  const BATCH = 3;
+  function renderBatch(start) {
+    const end = Math.min(start + BATCH, list.length);
+    for (let i = start; i < end; i++) {
+      const card = createVideoCard(list[i], i);
+      videoGrid.appendChild(card);
+      revealObserver.observe(card);
+      card.addEventListener('click', () => openVideoModal(list[i]));
+    }
+    /* Force-reveal card yang sudah terlihat di viewport */
+    requestAnimationFrame(() => {
+      videoGrid.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('visible');
+      });
     });
-  }));
+    if (end < list.length) {
+      setTimeout(() => renderBatch(end), 0);
+    }
+  }
+  renderBatch(0);
 }
 
 renderCards('all');
@@ -2119,10 +2153,10 @@ const MY_DESIGNS = [
   },
   /* ── SLOT 4 — Square (1 kolom) ───────────────────────────── */
   {
-    image:     "",  // ← isi dengan path gambar
-    title:     "Typographic Layout",
-    tag:       "Typography · Editorial · Print",
-    label:     "Typography",
+    image:     "images/style.jpg",  // ← isi dengan path gambar
+    title:     "outfit style",
+    tag:       "Fashion · Editorial · Life Style",
+    label:     "Fashion Style",
     type:      "square",
     gradClass: "grad-5",
   },
@@ -2197,24 +2231,22 @@ function renderDesignCards() {
     /* Image sits above gradient (z-index 1).
        aspect-ratio is set dynamically on load so the card matches the image. */
     const img = document.createElement('img');
+    img.decoding = 'async';
     img.src = design.image.trim();
     img.alt = design.title;
     img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;z-index:1;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
     img.onload = () => {
-      /* Jika ada field aspectRatio manual di data → pakai itu.
-         Kalau tidak ada → otomatis ikut rasio asli gambar. */
       card.style.aspectRatio = design.aspectRatio
         ? design.aspectRatio
         : img.naturalWidth + '/' + img.naturalHeight;
     };
-    img.onerror = () => { img.remove(); /* fallback to gradient */ };
-    /* Insert after .design-bg so it sits above the gradient */
+    img.onerror = () => { img.remove(); };
     const bgEl = card.querySelector('.design-bg');
     bgEl.insertAdjacentElement('afterend', img);
 
-    /* Hover zoom on image */
-    card.addEventListener('mouseenter', () => { img.style.transform = 'scale(1.04)'; document.body.classList.add('cursor-hover'); });
-    card.addEventListener('mouseleave', () => { img.style.transform = 'scale(1)';   document.body.classList.remove('cursor-hover'); });
+    /* Hover zoom — cursor delegation handles cursor-hover class globally */
+    card.addEventListener('mouseenter', () => { img.style.transform = 'scale(1.04)'; });
+    card.addEventListener('mouseleave', () => { img.style.transform = 'scale(1)'; });
 
     designGridEl.appendChild(card);
     revealObserver.observe(card);
@@ -2307,7 +2339,6 @@ function openVideoModal(video) {
     vidEl.src = video.url;
     vidEl.controls = true;
     vidEl.autoplay = true;
-    vidEl.preload = 'none';
     vidEl.style.cssText = 'width:100%;height:100%;display:block;background:#000;';
     vidEl.setAttribute('controlsList', 'nodownload');
     vidEl.setAttribute('playsinline', '');
@@ -2359,14 +2390,31 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   });
 });
 
-/* ---- Subtle parallax on hero orbs ---- */
+/* ---- Parallax on hero orbs (rAF throttled, cached refs) ---- */
+const orb1 = document.querySelector('.hero-orb-1');
+const orb2 = document.querySelector('.hero-orb-2');
+let parallaxTicking = false;
 window.addEventListener('scroll', () => {
-  const scrollY = window.scrollY;
-  const orb1 = document.querySelector('.hero-orb-1');
-  const orb2 = document.querySelector('.hero-orb-2');
-  if (orb1) orb1.style.transform = `translateY(${scrollY * 0.15}px)`;
-  if (orb2) orb2.style.transform = `translateY(${scrollY * -0.1}px)`;
+  if (!parallaxTicking) {
+    requestAnimationFrame(() => {
+      const scrollY = window.scrollY;
+      if (orb1) orb1.style.transform = `translateY(${scrollY * 0.15}px)`;
+      if (orb2) orb2.style.transform = `translateY(${scrollY * -0.1}px)`;
+      parallaxTicking = false;
+    });
+    parallaxTicking = true;
+  }
 }, { passive: true });
+
+/* ---- Pause CSS animations when off-screen (IntersectionObserver) ---- */
+const pauseObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    entry.target.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+  });
+}, { threshold: 0 });
+document.querySelectorAll('.marquee, .scroll-line, .hero-orange-box').forEach(el => {
+  pauseObserver.observe(el);
+});
 </script>
 </body>
 </html>
