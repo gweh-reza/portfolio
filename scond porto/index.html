@@ -97,7 +97,11 @@ body.cursor-text #cursor-outer {
   border-radius: 8px;
   border-color: var(--orange);
 }
-
+/* Matikan custom cursor di mobile / touchscreen */
+@media (hover: none), (pointer: coarse) {
+  #cursor-outer, #cursor-dot { display: none !important; }
+  *, a, button, .video-card, #modal-close { cursor: auto !important; }
+}
 /* =========================================================
    NOISE OVERLAY
    ========================================================= */
@@ -1559,52 +1563,56 @@ footer {
      JAVASCRIPT
      ========================================================= -->
 <script>
-/* ---- Custom Cursor (OPTIMIZED) ---- */
+/* ---- Custom Cursor — dimatikan di mobile/touchscreen ---- */
+const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
 const cursorOuter = document.getElementById('cursor-outer');
 const cursorDot   = document.getElementById('cursor-dot');
-let mouseX = 0, mouseY = 0;
-let outerX = 0, outerY = 0;
-let cursorNeedsUpdate = false;
 
-/* Dot: langsung snap pakai CSS transform — tidak trigger reflow */
-document.addEventListener('mousemove', e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  cursorDot.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
-  cursorNeedsUpdate = true;
-});
+if (!isTouchDevice) {
+  let mouseX = 0, mouseY = 0;
+  let outerX = 0, outerY = 0;
+  let cursorNeedsUpdate = false;
 
-/* Outer ring: smooth follow, hanya hitung saat ada pergerakan */
-function animateCursor() {
-  if (cursorNeedsUpdate) {
-    outerX += (mouseX - outerX) * 0.12;
-    outerY += (mouseY - outerY) * 0.12;
-    cursorOuter.style.transform = `translate(calc(${outerX}px - 50%), calc(${outerY}px - 50%))`;
-    if (Math.abs(mouseX - outerX) < 0.4 && Math.abs(mouseY - outerY) < 0.4) {
-      cursorNeedsUpdate = false;
+  /* Dot: langsung snap pakai CSS transform — tidak trigger reflow */
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorDot.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
+    cursorNeedsUpdate = true;
+  });
+
+  /* Outer ring: smooth follow, hanya hitung saat ada pergerakan */
+  function animateCursor() {
+    if (cursorNeedsUpdate) {
+      outerX += (mouseX - outerX) * 0.12;
+      outerY += (mouseY - outerY) * 0.12;
+      cursorOuter.style.transform = `translate(calc(${outerX}px - 50%), calc(${outerY}px - 50%))`;
+      if (Math.abs(mouseX - outerX) < 0.4 && Math.abs(mouseY - outerY) < 0.4) {
+        cursorNeedsUpdate = false;
+      }
     }
+    requestAnimationFrame(animateCursor);
   }
-  requestAnimationFrame(animateCursor);
+  animateCursor();
+
+  /* Cursor hover states: 1 listener di document, bukan forEach per-elemen */
+  document.addEventListener('mouseover', e => {
+    const isInteractive = !!e.target.closest('a, button, .video-card, .design-card');
+    const isText        = !!e.target.closest('p, h1, h2, h3') && !isInteractive;
+    document.body.classList.toggle('cursor-hover', isInteractive);
+    document.body.classList.toggle('cursor-text',  isText);
+  });
+
+  /* Sembunyikan cursor saat keluar window */
+  document.addEventListener('mouseleave', () => {
+    cursorOuter.style.opacity = '0';
+    cursorDot.style.opacity   = '0';
+  });
+  document.addEventListener('mouseenter', () => {
+    cursorOuter.style.opacity = '1';
+    cursorDot.style.opacity   = '1';
+  });
 }
-animateCursor();
-
-/* Cursor hover states: 1 listener di document, bukan forEach per-elemen */
-document.addEventListener('mouseover', e => {
-  const isInteractive = !!e.target.closest('a, button, .video-card, .design-card');
-  const isText        = !!e.target.closest('p, h1, h2, h3') && !isInteractive;
-  document.body.classList.toggle('cursor-hover', isInteractive);
-  document.body.classList.toggle('cursor-text',  isText);
-});
-
-/* Sembunyikan cursor saat keluar window */
-document.addEventListener('mouseleave', () => {
-  cursorOuter.style.opacity = '0';
-  cursorDot.style.opacity   = '0';
-});
-document.addEventListener('mouseenter', () => {
-  cursorOuter.style.opacity = '1';
-  cursorDot.style.opacity   = '1';
-});
 
 /* ---- Navbar scroll effect ---- */
 const navbar = document.getElementById('navbar');
